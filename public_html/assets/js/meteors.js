@@ -116,5 +116,6 @@
 
   window.addEventListener('resize', build);
   build();
+  if (W && H) document.documentElement.classList.add('sky-active');
   requestAnimationFrame(frame);
 })();

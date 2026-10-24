@@ -128,6 +128,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   100% { opacity: 0; translate: -270px 175px; }
 }
 
+.meteor-sky { position: fixed; inset: 0; z-index: -3; display: block; width: 100%; height: 100%; pointer-events: none; background: #03050a; }
+html.sky-active .meteor-sky ~ * .meteor,
+html.sky-active .cosmos > .meteor { display: none; }
+html.sky-active .cosmos { background: transparent; }
+html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%, transparent 0 30%, rgba(1, 3, 8, .18) 58%, #03050a 100%); }
+
 @media (max-width: 760px) {
   .topbar { min-height: 78px; padding-inline: 20px; }
   .brand-name { font-size: 1.3rem; letter-spacing: .25em; }
