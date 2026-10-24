@@ -62,6 +62,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .tick-right { right: 8.9%; }
 
 .center-panel { position: relative; z-index: 3; width: 46%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 38px 34px 32px; text-align: center; border: 1px solid rgba(133, 184, 242, .28); border-radius: 50%; overflow: hidden; background: radial-gradient(ellipse at 50% 10%, rgba(24, 58, 96, .32), transparent 54%), radial-gradient(ellipse at 50% 100%, rgba(8, 19, 37, .98), rgba(2, 5, 11, .95) 62%); box-shadow: 0 0 60px rgba(31, 116, 208, .12), inset 0 0 45px rgba(64, 137, 211, .055); backdrop-filter: blur(9px); transition: border-color .4s, box-shadow .4s; }
+.panel-content { display: flex; flex-direction: column; align-items: center; width: 100%; }
 .center-panel::before { content: ''; position: absolute; inset: 9px; border: 1px solid rgba(177, 215, 255, .065); border-radius: 50%; pointer-events: none; }
 .center-panel::after { content: ''; position: absolute; top: -30%; left: -20%; width: 140%; height: 55%; transform: rotate(-24deg); background: linear-gradient(transparent, rgba(140, 201, 255, .035), transparent); pointer-events: none; }
 .panel-topline { position: absolute; top: 12%; left: 15%; right: 15%; display: flex; align-items: center; gap: 7px; color: #7f9ab7; font: 8px var(--mono); letter-spacing: .16em; white-space: nowrap; }
@@ -134,6 +135,19 @@ html.sky-active .cosmos > .meteor { display: none; }
 html.sky-active .cosmos { background: transparent; }
 html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%, transparent 0 30%, rgba(1, 3, 8, .18) 58%, #03050a 100%); }
 
+/* Keeps the circular panel content inside its circle on tablets and small laptop windows. */
+@media (min-width: 461px) and (max-width: 1180px) {
+  .panel-content { zoom: .80; }
+}
+
+@media (min-width: 461px) and (max-width: 900px) {
+  .panel-content { zoom: .66; }
+}
+
+@media (min-width: 461px) and (max-width: 760px) {
+  .panel-content { zoom: .54; }
+}
+
 @media (max-width: 760px) {
   .topbar { min-height: 78px; padding-inline: 20px; }
   .brand-name { font-size: 1.3rem; letter-spacing: .25em; }
@@ -144,6 +158,7 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
   .universe { min-height: calc(100svh - 124px); padding: 8px 0 22px; }
   .orbit-stage { width: min(96vw, 650px); }
   .center-panel { width: 48%; padding: 31px 18px 26px; }
+  .panel-content { zoom: .66; }
   .panel-topline { left: 14%; right: 14%; top: 12%; gap: 5px; font-size: 6px; letter-spacing: .08em; }
   .panel-symbol { width: 27px; height: 27px; margin-bottom: 3px; }
   .panel-kicker { font-size: 6px; letter-spacing: .11em; margin-bottom: 6px; }
@@ -177,6 +192,7 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
   .orbit-stage { width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; gap: 0; padding: 0 16px; }
   .orbit, .orbit-tick { display: none; }
   .center-panel { order: 0; width: min(100%, 390px); min-height: 395px; aspect-ratio: auto; margin: 0 auto 22px; border-radius: 24px; padding: 54px 24px 26px; }
+  .panel-content { zoom: 1; }
   .center-panel::before { border-radius: 18px; }
   .panel-topline { top: 24px; left: 24px; right: 24px; font-size: 8px; }
   .panel-symbol { width: 35px; height: 35px; margin: 7px 0 13px; }
