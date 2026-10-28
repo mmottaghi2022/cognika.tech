@@ -16,17 +16,18 @@
   <meta property="og:url" content="https://cognika.tech/">
   <meta property="og:title" content="COGNIKA — Intelligence Creates Tomorrow">
   <meta property="og:description" content="Intelligence, engineering, and adaptive systems: e_OS, pa_ia, and Srm_p.">
-  <meta property="og:image" content="https://cognika.tech/assets/img/og-image.jpg">
-  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image" content="https://cognika.tech/assets/img/back_ground.webp">
+  <meta property="og:image:type" content="image/webp">
   <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Cognika concept artwork: a cosmic interface with orbit rings">
+  <meta property="og:image:height" content="675">
+  <meta property="og:image:alt" content="Cognika backdrop: a spiral galaxy with a bright core in deep space">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="COGNIKA — Intelligence Creates Tomorrow">
   <meta name="twitter:description" content="Intelligence, engineering, and adaptive systems: e_OS, pa_ia, and Srm_p.">
-  <meta name="twitter:image" content="https://cognika.tech/assets/img/og-image.jpg">
+  <meta name="twitter:image" content="https://cognika.tech/assets/img/back_ground.webp">
 
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/styles.css?v=7">
+  <link rel="preload" as="image" href="assets/img/back_ground.webp" type="image/webp" fetchpriority="high">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -39,7 +40,13 @@
   }
   </script>
 </head>
-<body>
+<body class="has-backdrop">
+  <div class="backdrop" aria-hidden="true">
+    <picture>
+      <source srcset="assets/img/back_ground.webp" type="image/webp">
+      <img src="assets/img/back_ground.webp" alt="" width="1200" height="675" decoding="async" fetchpriority="high">
+    </picture>
+  </div>
   <canvas class="meteor-sky" id="meteorSky" aria-hidden="true"></canvas>
   <div class="cosmos" aria-hidden="true">
     <div class="nebula nebula-a"></div>
@@ -67,40 +74,50 @@
   </header>
 
   <main id="home" class="universe">
-    <section class="orbit-stage" aria-label="Cognika interactive project navigation">
-      <div class="orbit orbit-outer" aria-hidden="true"></div>
-      <div class="orbit orbit-inner" aria-hidden="true"></div>
-      <div class="orbit-tick tick-top" aria-hidden="true"></div>
-      <div class="orbit-tick tick-bottom" aria-hidden="true"></div>
-      <div class="orbit-tick tick-left" aria-hidden="true"></div>
-      <div class="orbit-tick tick-right" aria-hidden="true"></div>
-
+    <!-- Left column: all writing. Center summary + detail card for the
+         hovered circle. Right column: the orbit wheel. -->
+    <section class="writing-pane" aria-label="Cognika section details">
       <div class="center-panel" aria-live="polite" aria-atomic="true">
-        <div class="panel-topline"><span class="status-dot"></span><span id="panelEyebrow">COGNIKA / PROJECT 01</span><span class="panel-index" id="panelIndex">01 — 06</span></div>
+        <div class="panel-topline"><span class="status-dot"></span><span id="panelEyebrow">COGNIKA / ABOUT</span><span class="panel-index" id="panelIndex">01 — 06</span></div>
         <div class="panel-content">
           <div class="panel-symbol" id="panelSymbol" aria-hidden="true">
-            <svg viewBox="0 0 64 64" fill="none"><path d="M19 9h26v46H19z" stroke="currentColor" stroke-width="1.7"/><path d="M32 17v30" stroke="currentColor" stroke-width="1.7"/><circle cx="32" cy="32" r="2" fill="currentColor"/></svg>
+            <img class="panel-logo" src="assets/img/favicon.svg" alt="" width="40" height="40">
           </div>
-          <p class="panel-kicker" id="panelKicker">INTELLIGENT LIFT OPERATING SYSTEM</p>
-          <h1 id="panelTitle">e_OS</h1>
-          <p class="panel-description" id="panelDescription">A smarter control layer for lift systems—built around data, adaptive optimization, and dependable local operation.</p>
-          <div class="panel-links" id="panelLinks" aria-label="Selected section topics">
-            <button type="button" data-topic="System overview">System overview <span>↗</span></button>
-            <button type="button" data-topic="Controller integration">Controller integration <span>↗</span></button>
-            <button type="button" data-topic="Optimization research">Optimization research <span>↗</span></button>
-          </div>
-          <p class="panel-detail" id="panelDetail">Choose a topic to preview this section.</p>
-          <button class="explore-button" id="exploreButton" type="button">EXPLORE SECTION <span aria-hidden="true">↗</span></button>
+          <h1 id="panelTitle">Cognika</h1>
+          <p class="panel-teaser" id="panelTeaser">Bringing cognition to artificial intelligence.</p>
         </div>
       </div>
 
+      <aside class="hover-info is-visible" id="hoverInfo" aria-hidden="false">
+        <div class="hover-info-topline">
+          <span class="hover-info-dot"></span>
+          <span id="hoverEyebrow">COGNIKA / ABOUT</span>
+          <span class="hover-info-index" id="hoverIndex">01 — 06</span>
+        </div>
+        <p class="hover-info-kicker" id="hoverKicker">INTELLIGENCE CREATES TOMORROW</p>
+        <h2 class="hover-info-title" id="hoverTitle">Cognika</h2>
+        <div class="hover-info-rule"></div>
+        <p class="hover-info-description" id="hoverDescription">Cognika aims to bring cognition to artificial intelligence. We envision intelligent systems that go beyond executing predefined instructions to understand, reason, learn, and adapt. By combining advanced AI with engineering, software development, and automation, we transform intelligence into systems that can design, create, and continuously improve.</p>
+        <div class="hover-info-topics" id="hoverTopics" aria-label="Selected section topics">
+          <button type="button" data-topic="Our vision">Our vision <span aria-hidden="true">↗</span></button>
+          <button type="button" data-topic="Engineering philosophy">Engineering philosophy <span aria-hidden="true">↗</span></button>
+          <button type="button" data-topic="Research &amp; development">Research &amp; development <span aria-hidden="true">↗</span></button>
+        </div>
+        <p class="hover-info-detail" id="hoverDetail">Choose a topic to preview this section.</p>
+        <button class="hover-info-action" id="hoverAction" type="button">EXPLORE SECTION <span aria-hidden="true">↗</span></button>
+      </aside>
+
+      <div class="stage-coordinate coordinate-one" aria-hidden="true">37° 46' N<br>122° 25' W</div>
+    </section>
+
+    <section class="orbit-stage" aria-label="Cognika interactive project navigation">
       <nav class="orbit-menu" aria-label="Main navigation">
-        <button class="orbit-node node-about" type="button" data-section="about" aria-label="About Cognika" aria-pressed="false">
+        <button class="orbit-node node-about is-active" type="button" data-section="about" aria-label="About Cognika" aria-pressed="true">
           <span class="node-icon icon-cognika" aria-hidden="true"><span>C</span></span>
           <span class="node-label">ABOUT</span>
           <span class="node-caption">COGNIKA</span>
         </button>
-        <button class="orbit-node node-eos is-active" type="button" data-section="eos" aria-label="e_OS intelligent lift operating system" aria-pressed="true">
+        <button class="orbit-node node-eos" type="button" data-section="eos" aria-label="e_OS intelligent lift operating system" aria-pressed="false">
           <span class="node-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="12" y="6" width="24" height="36" rx="2"/><path d="M24 13v22M20 18l4-4 4 4"/></svg></span>
           <span class="node-label">e_OS</span>
           <span class="node-caption">LIFT SYSTEM</span>
@@ -126,7 +143,6 @@
           <span class="node-caption">LET'S CONNECT</span>
         </button>
       </nav>
-      <div class="stage-coordinate coordinate-one" aria-hidden="true">37° 46' N<br>122° 25' W</div>
       <div class="stage-coordinate coordinate-two" aria-hidden="true">COGNITIVE SYSTEMS<br>BUILD / LEARN / EVOLVE</div>
     </section>
   </main>
@@ -145,7 +161,7 @@
     <p class="dialog-note">This homepage is a front-end concept. Dedicated project pages, downloads, and contact details can be connected as those resources are ready.</p>
   </dialog>
 
-  <script src="assets/js/meteors.js" defer></script>
-  <script src="assets/js/script.js" defer></script>
+  <script src="assets/js/meteors.js?v=7" defer></script>
+  <script src="assets/js/script.js?v=7" defer></script>
 </body>
 </html>

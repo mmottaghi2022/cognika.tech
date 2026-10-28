@@ -1,1 +1,9 @@
 .DS_Store
+
+# Private keys and credentials — never commit these.
+SSH Key/
+cognika-config/
+*.pem
+id_rsa*
+*.ppk
+public_html/inc/config.php
