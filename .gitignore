@@ -7,3 +7,7 @@ cognika-config/
 id_rsa*
 *.ppk
 public_html/inc/config.php
+
+# Mailbox / account passwords — never commit these.
+pass_info.rtf
+*pass_info*

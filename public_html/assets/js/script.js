@@ -71,15 +71,18 @@
       index: '05 — 06', eyebrow: 'COGNIKA / RESOURCES', title: 'Downloads', kicker: 'DOCUMENTS · SOFTWARE · FIRMWARE',
       teaser: 'Documents, releases and tools.',
       description: 'A single place for project documents, technical resources, release notes, and downloadable tools.',
-      topics: ['Technical documents', 'Software releases', 'Firmware & utilities'],
-      symbol: 'download', dialog: 'The download center can host technical documents, project releases, firmware, and utilities as they become available.'
+      topics: [],
+      minimal: true,
+      symbol: '', dialog: 'The download center can host technical documents, project releases, firmware, and utilities as they become available.'
     },
     contact: {
-      index: '06 — 06', eyebrow: 'COGNIKA / CONTACT', title: 'Connect', kicker: 'LET’S BUILD SOMETHING INTELLIGENT',
-      teaser: 'Start a conversation.',
-      description: 'Have an engineering challenge, collaboration idea, or question about a Cognika project? Start a conversation.',
-      topics: ['General enquiries', 'Project collaboration', 'Technical discussions'],
-      symbol: 'mail', dialog: 'Use this section for general enquiries, project collaboration, and technical discussions. Add your official contact channels before launch.'
+      index: '06 — 06', eyebrow: 'COGNIKA / CONTACT', title: 'Contact', kicker: 'LET’S BUILD SOMETHING INTELLIGENT',
+      teaser: 'Get in touch.',
+      description: 'For engineering challenges, collaboration ideas, or questions about a Cognika project, write to us at info@cognika.tech.',
+      email: 'info@cognika.tech',
+      topics: [],
+      minimal: true,
+      symbol: '', dialog: 'For general enquiries, project collaboration, and technical discussions, write to Cognika at info@cognika.tech.'
     }
   };
 
@@ -153,6 +156,7 @@
     hoverDetail.textContent = 'Choose a topic to preview this section.';
     hoverInfo.classList.toggle('is-minimal', Boolean(data.minimal));
     document.querySelector('.writing-pane')?.classList.toggle('is-minimal', Boolean(data.minimal));
+    renderEmail(data);
     hoverInfo.classList.toggle('is-visible', fromHover);
     hoverInfo.setAttribute('aria-hidden', String(!fromHover));
     document.body.classList.toggle('card-open', fromHover);
@@ -216,6 +220,26 @@
       }
     };
     return descriptions[key]?.[topic] || 'More information will be added here.';
+  }
+
+  // Contact panel: the email address replaces the "explore" button, so clicking
+  // it opens a message instead of a dialog.
+  function renderEmail(data) {
+    let link = document.getElementById('hoverEmail');
+    if (!data.email) {
+      if (link) link.remove();
+      hoverAction.hidden = false;
+      return;
+    }
+    hoverAction.hidden = true;
+    if (!link) {
+      link = document.createElement('a');
+      link.id = 'hoverEmail';
+      link.className = 'hover-info-email';
+      hoverAction.parentNode.insertBefore(link, hoverAction.nextSibling);
+    }
+    link.href = 'mailto:' + data.email;
+    link.textContent = data.email;
   }
 
   function escapeHTML(value) {

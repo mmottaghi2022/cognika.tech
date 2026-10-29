@@ -139,6 +139,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .hover-info-action span { font-size: 17px; transition: transform .2s; }
 .hover-info-action:hover, .hover-info-action:focus-visible { color: #fff; border-color: var(--blue); }
 .hover-info-action:hover span { transform: translate(3px, -2px); }
+/* `display: inline-flex` above overrides the [hidden] attribute — restore it. */
+.hover-info-action[hidden] { display: none; }
 
 /* Minimal mode (used by pat_ia): drop the eyebrow line, title, kicker and rule —
    the panel is just the copy and the explore link. Topics/detail never show. */
@@ -203,6 +205,22 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .writing-pane.is-minimal #panelTitle { white-space: nowrap; }
 /* Second eyebrow line gone for pat_ia. */
 .writing-pane.is-minimal .panel-topline { display: none; }
+
+/* Contact: the email address, styled like the explore link it replaces. */
+.hover-info-email {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 6px 0;
+  color: #cfe6fb;
+  font: 15px var(--mono);
+  letter-spacing: .08em;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(123, 190, 248, .45);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .9);
+  transition: color .2s, border-color .2s;
+}
+.hover-info-email:hover,
+.hover-info-email:focus-visible { color: #fff; border-color: var(--blue); }
 
 .node-icon { display: grid; place-items: center; width: clamp(24px, 3.3vw, 36px); height: clamp(24px, 3.3vw, 36px); color: #d9efff; }
 .node-icon svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(133, 205, 255, .18)); }
