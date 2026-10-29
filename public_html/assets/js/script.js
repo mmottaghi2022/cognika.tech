@@ -326,14 +326,15 @@
     landingLogo.style.transformOrigin = 'top left';
     landingLogo.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
 
-    document.body.classList.remove('landing-active');
+    // Keep the header wordmark hidden for the whole flight; it is revealed in
+    // `finish()` once the flying one has landed on it.
     document.body.classList.add('landing-flown');
 
-    // Once the wordmark has landed, fade the cover out so the site shows.
     const finish = () => {
+      // The flying wordmark has landed: swap it for the real header logo.
       landing.classList.add('is-done');
-      // Reveal the left panel only once the wordmark has landed, then show the
-      // section that was hovered while the first page was up.
+      landingLogo.style.visibility = 'hidden';
+      document.body.classList.remove('landing-active');
       document.body.classList.remove('panel-hidden');
       document.body.classList.add('panel-ready');
       if (pendingSection) {

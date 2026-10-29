@@ -76,23 +76,27 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .mobile-menu-toggle { display: none; }
 
 /* Two-column split: left = all writing, right = the orbit wheel. */
-.universe { --orbit-lift: clamp(24px, 7vh, 72px); position: relative; z-index: 10; min-height: calc(100svh - 155px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(16px, 3vw, 56px); padding-inline: clamp(20px, 4vw, 66px); isolation: isolate; }
+/* Two columns: writing on the left, and the fixed navigator floats over the
+   right margin (sized by --nav-w so text never runs beneath it). */
+.universe { --orbit-lift: clamp(24px, 7vh, 72px); --nav-w: clamp(120px, 11vw, 210px); position: relative; z-index: 10; min-height: calc(100svh - 155px); display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: clamp(16px, 3vw, 56px); padding-inline: clamp(20px, 4vw, 66px); padding-right: calc(var(--nav-w) + clamp(20px, 4vw, 66px)); isolation: isolate; }
 
 .writing-pane { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 22px; min-width: 0; padding-inline-start: clamp(0px, 2vw, 34px); }
 
-/* Navigator column, anchored to the bottom-right corner of the page.
-   No rings, no hub — the six nodes stacked in a single vertical line.
-   Width comes from the circles themselves, so they keep their full diameter.
-   The column is lifted OFF the footer by `--orbit-lift` so it reads as
-   floating rather than resting on the footer rule. */
-.orbit-stage { position: relative; justify-self: end; align-self: end; padding-bottom: var(--orbit-lift); z-index: 30; }
+/* Navigator column, fixed to the TOP-RIGHT of the viewport so it stays put
+   while the page scrolls. No rings, no hub — six nodes in a vertical line. */
+.orbit-stage {
+  position: fixed;
+  top: 96px;
+  right: clamp(22px, 4vw, 62px);
+  z-index: 30;
+  padding-bottom: 0;
+}
 
 .orbit-menu { position: relative; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: clamp(6px, 1vh, 10px); }
-/* Six circles + five gaps + the lift must fit between the top bar and footer,
-   i.e. `100svh − 155px` of budget. Solving 6d + 5·10 + lift gives the size
-   below, so the stack stays as large as possible without clipping. The floor
-   is 100px — the smallest diameter in which icon + label + caption still fit. */
-.orbit-node { position: relative; width: clamp(100px, calc((100svh - 255px) / 6), 139px); height: clamp(100px, calc((100svh - 255px) / 6), 139px); aspect-ratio: 1; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid rgba(154, 201, 250, .39); border-radius: 50%; background: radial-gradient(circle at 50% 28%, rgba(22, 44, 68, .68), rgba(3, 9, 18, .9) 68%); box-shadow: inset 0 0 18px rgba(88, 149, 215, .055); cursor: pointer; transition: border-color .25s, box-shadow .25s, background .25s, scale .25s; text-align: center; padding: 10px 6px; }
+/* Six circles + five gaps must fit between the header (96px) and footer, plus a
+   bottom margin. Solving 6d + 5·gap + 96 + 40 ≈ 100svh gives the size below.
+   Floor of 84px keeps icon + label readable on short screens. */
+.orbit-node { position: relative; width: clamp(84px, calc((100svh - 200px) / 6), 132px); height: clamp(84px, calc((100svh - 200px) / 6), 132px); aspect-ratio: 1; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid rgba(154, 201, 250, .39); border-radius: 50%; background: radial-gradient(circle at 50% 28%, rgba(22, 44, 68, .68), rgba(3, 9, 18, .9) 68%); box-shadow: inset 0 0 18px rgba(88, 149, 215, .055); cursor: pointer; transition: border-color .25s, box-shadow .25s, background .25s, scale .25s; text-align: center; padding: 10px 6px; }
 .orbit-node:hover, .orbit-node:focus-visible, .orbit-node.is-active { border-color: rgba(150, 214, 255, .92); background: radial-gradient(circle at 50% 27%, rgba(32, 77, 116, .77), rgba(3, 9, 18, .96) 70%); box-shadow: 0 0 30px rgba(54, 148, 235, .17), inset 0 0 20px rgba(88, 174, 244, .11); }
 .orbit-node.is-active { scale: 1.035; }
 /* Single vertical line, numbered 01 → 06 from top to bottom.
@@ -286,18 +290,30 @@ body.panel-hidden .writing-pane { opacity: 0; pointer-events: none; }
 body.panel-hidden .center-panel,
 body.panel-hidden .hover-info { visibility: hidden; }
 
+/* On phones the navigator moves to the BOTTOM of the viewport, so the landing
+   wordmark can sit in the upper third without ever colliding with it. */
 @media (max-width: 760px) {
-  .landing-logo { height: 110px; }
+  /* Fixed 1700:300 ratio so the wordmark can never be squashed on a phone,
+     whatever the available width. */
+  .landing-logo { height: 99px; width: calc(99px * 1700 / 300); max-width: 84vw; aspect-ratio: 1700 / 300; object-fit: contain; }
   .landing-inner { padding: 0 10vw; }
+  .landing { align-items: flex-start; padding-top: 33svh; padding-bottom: 0; padding-right: 0; }
+  .landing-inner { padding: 0 8vw; width: 100%; }
 }
+
+/* ---- Blue flame on the trailing "A" of the wordmark ---------------------
+   A transparent canvas is positioned over the final glyph and paints layered
+   flame tongues in cyan/blue. Geometry is driven from JS so it tracks the logo
+   at any size or position. */
+.logo-flame { position: fixed; pointer-events: none; z-index: 25; mix-blend-mode: screen; opacity: .95; }
 
 .node-icon { display: grid; place-items: center; width: clamp(24px, 3.3vw, 36px); height: clamp(24px, 3.3vw, 36px); color: #d9efff; }
 .node-icon svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(133, 205, 255, .18)); }
 .icon-cognika { font-size: 35px; font-weight: 300; line-height: 1; letter-spacing: -.09em; }
 .icon-cognika span { display: inline-block; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; width: 29px; height: 29px; line-height: 25px; padding-right: 2px; text-align: center; }
 .node-label { margin-top: 2px; color: #e4f3ff; font-size: clamp(10px, 1.28vmin, 12px); font-weight: 500; letter-spacing: .08em; }
-.node-caption { color: #7893af; font: 7px var(--mono); letter-spacing: .13em; }
-.orbit-node.is-active .node-caption { color: #a5ccec; }
+/* Captions are hidden everywhere — the icon + label carry the meaning. */
+.node-caption { display: none; }
 .stage-coordinate { position: absolute; color: rgba(133, 164, 195, .51); font: 7px/1.8 var(--mono); letter-spacing: .17em; }
 /* Lives in the left writing pane now. */
 .coordinate-one { left: 0; bottom: 2%; }
@@ -359,11 +375,13 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
   /* Single column: writing on top, nav docked top-right. */
   .universe { grid-template-columns: minmax(0, 1fr); min-height: calc(100svh - 124px); gap: 20px; padding: 12px clamp(14px, 4vw, 24px) 22px; }
   .writing-pane { order: 1; }
-  /* Navigator pinned to the top-right corner of the viewport. */
+  /* Navigator stays a vertical column, pinned to the BOTTOM-RIGHT of the
+     viewport on phones. */
   .orbit-stage {
     order: 2;
     position: fixed;
-    top: 86px;
+    top: auto;
+    bottom: 14px;
     right: 10px;
     left: auto;
     width: auto;
@@ -372,9 +390,16 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
     align-self: auto;
     margin: 0;
     padding-bottom: 0;
-    z-index: 20;
+    z-index: 30;
   }
-  .orbit-menu { gap: 6px; }
+  .orbit-menu { flex-direction: column; align-items: flex-end; gap: 4px; }
+  /* Circles shrink so six of them plus gaps clear the phone's height. */
+  .orbit-node { width: clamp(36px, 8.4vh, 50px); height: clamp(36px, 8.4vh, 50px); padding: 3px 2px; gap: 2px; }
+  .node-icon { width: 15px; height: 15px; }
+  .icon-cognika { font-size: 17px; }
+  .icon-cognika span { width: 14px; height: 14px; line-height: 11px; }
+  .node-label { font-size: 6px; letter-spacing: 0; }
+  .node-caption { display: none; }
   .coordinate-one { display: none; }
   .center-panel, .hover-info { max-width: none; }
   /* The desktop width formula leaves only 200px here — use the full column. */
@@ -417,19 +442,19 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
 
 @media (max-width: 460px) {
   .universe { min-height: auto; display: block; padding: 6px 0 28px; }
-  /* Keep the fixed top-right dock — override the old full-width stack. */
+  /* Keep the vertical column docked bottom-right; only the sizing changes. */
   .orbit-stage { width: auto; aspect-ratio: auto; display: block; padding: 0; }
   .center-panel { padding: 22px 60px 22px 20px; }
   .panel-symbol { width: 34px; height: 34px; margin-bottom: 12px; }
   .center-panel h1 { font-size: 1.35rem; margin-bottom: 10px; }
   .panel-teaser { max-width: none; font-size: 10.5px; line-height: 1.6; }
-  .orbit-menu { position: relative; inset: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-  .orbit-node, .node-about, .node-eos, .node-paia, .node-srm, .node-downloads, .node-contact { position: relative; inset: auto; width: clamp(44px, 11vw, 56px); max-width: 56px; height: auto; aspect-ratio: 1; justify-self: auto; transform: none; padding: 3px 2px; gap: 2px; }
+  .orbit-menu { position: relative; inset: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .orbit-node, .node-about, .node-eos, .node-paia, .node-srm, .node-downloads, .node-contact { position: relative; inset: auto; width: clamp(34px, 8vh, 46px); max-width: 46px; height: auto; aspect-ratio: 1; justify-self: auto; transform: none; padding: 3px 2px; gap: 2px; }
   .orbit-node.is-active { scale: 1.02; }
-  .node-icon { width: 17px; height: 17px; }
-  .icon-cognika { font-size: 19px; }
-  .icon-cognika span { width: 16px; height: 16px; line-height: 13px; }
-  .node-label { font-size: 6.5px; }
+  .node-icon { width: 14px; height: 14px; }
+  .icon-cognika { font-size: 16px; }
+  .icon-cognika span { width: 13px; height: 13px; line-height: 10px; }
+  .node-label { font-size: 5.5px; }
   .node-caption { display: none; }
   .hover-info.is-minimal .hover-info-description { font-size: 11.5px; }
   .writing-pane { padding-inline-end: 66px; }
