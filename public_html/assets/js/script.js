@@ -291,7 +291,100 @@
     }
   });
 
-  // Show the active section's detail immediately, so the page is readable on
-  // load without requiring a hover. `fromHover` only tracks interaction.
-  renderSection(activeKey, { fromHover: true });
+  // ---- Landing / first page ---------------------------------------------
+  // The navigator stays visible on top of the landing cover. Hovering or
+  // focusing a circle flies the big wordmark into the header slot and shows
+  // that section's line underneath it.
+  const landing = document.getElementById('landing');
+  const landingLogo = document.getElementById('landingLogo');
+  const landingCopy = document.getElementById('landingCopy');
+  const headerLogo = document.querySelector('.brand-logo');
+  let landingFlown = false;
+
+  const LANDING_LINES = {
+    about: 'We bring cognition to AI<br>The next step in agentic intelligence',
+    eos: 'Intelligent elevator dispatch and optimisation',
+    paia: 'Self-developing intelligent ERP',
+    srm: 'Synchronous reluctance positioning motors',
+    downloads: 'Documents, releases and tools',
+    contact: 'Let\u2019s build something intelligent'
+  };
+
+  function flyLogo() {
+    if (landingFlown) return;
+    landingFlown = true;
+
+    // Measure both slots at flight time so the transform is exact.
+    const from = landingLogo.getBoundingClientRect();
+    const to = headerLogo.getBoundingClientRect();
+    const dx = to.left - from.left;
+    const dy = to.top - from.top;
+    const scale = from.width ? to.width / from.width : 1;
+
+    landingLogo.classList.add('is-flying');
+    landing.classList.add('is-flying');
+    landingLogo.style.transformOrigin = 'top left';
+    landingLogo.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+
+    document.body.classList.remove('landing-active');
+    document.body.classList.add('landing-flown');
+
+    // Once the wordmark has landed, fade the cover out so the site shows.
+    const finish = () => {
+      landing.classList.add('is-done');
+      // Reveal the left panel only once the wordmark has landed, then show the
+      // section that was hovered while the first page was up.
+      document.body.classList.remove('panel-hidden');
+      document.body.classList.add('panel-ready');
+      if (pendingSection) {
+        renderSection(pendingSection, { fromHover: true });
+        pendingSection = null;
+      }
+    };
+    landingLogo.addEventListener('transitionend', finish, { once: true });
+    setTimeout(finish, 950);
+  }
+
+  function setLandingLine(key) {
+    if (!LANDING_LINES[key] || landingFlown) return;
+    landingCopy.classList.add('is-swapping');
+    setTimeout(() => {
+      landingCopy.innerHTML =
+        `<p class="landing-line is-active" data-for="${key}">${LANDING_LINES[key]}</p>`;
+      landingCopy.classList.remove('is-swapping');
+    }, 180);
+  }
+
+  // Hovering a circle starts the flight immediately, but the section panel is
+  // only filled and revealed after the wordmark lands.
+  let pendingSection = null;
+
+  nodes.forEach(node => {
+    const key = node.dataset.section;
+    const begin = () => {
+      setLandingLine(key);
+      if (!landingFlown) {
+        pendingSection = key;
+        flyLogo();
+      } else {
+        showSection(key);
+      }
+    };
+    node.addEventListener('mouseenter', begin);
+    node.addEventListener('focus', begin);
+    node.addEventListener('click', () => {
+      if (landingFlown) showSection(key);
+    });
+  });
+
+  function showSection(key) {
+    renderSection(key, { fromHover: true });
+  }
+
+  // Pre-fill the panel with the default section, but keep it hidden until the
+  // first page is dismissed — nothing should appear on the landing screen.
+  renderSection(activeKey, { fromHover: false });
+
+  // Hide the header wordmark and the left panel while the first page is up.
+  document.body.classList.add('landing-active', 'panel-hidden');
 })();

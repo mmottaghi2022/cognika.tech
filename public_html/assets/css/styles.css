@@ -76,7 +76,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .mobile-menu-toggle { display: none; }
 
 /* Two-column split: left = all writing, right = the orbit wheel. */
-.universe { --orbit-lift: clamp(24px, 7vh, 72px); position: relative; min-height: calc(100svh - 155px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(16px, 3vw, 56px); padding-inline: clamp(20px, 4vw, 66px); isolation: isolate; }
+.universe { --orbit-lift: clamp(24px, 7vh, 72px); position: relative; z-index: 10; min-height: calc(100svh - 155px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(16px, 3vw, 56px); padding-inline: clamp(20px, 4vw, 66px); isolation: isolate; }
 
 .writing-pane { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 22px; min-width: 0; padding-inline-start: clamp(0px, 2vw, 34px); }
 
@@ -85,7 +85,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
    Width comes from the circles themselves, so they keep their full diameter.
    The column is lifted OFF the footer by `--orbit-lift` so it reads as
    floating rather than resting on the footer rule. */
-.orbit-stage { position: relative; justify-self: end; align-self: end; padding-bottom: var(--orbit-lift); }
+.orbit-stage { position: relative; justify-self: end; align-self: end; padding-bottom: var(--orbit-lift); z-index: 30; }
 
 .orbit-menu { position: relative; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: clamp(6px, 1vh, 10px); }
 /* Six circles + five gaps + the lift must fit between the top bar and footer,
@@ -222,6 +222,74 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 }
 .hover-info-email:hover,
 .hover-info-email:focus-visible { color: #fff; border-color: var(--blue); }
+
+/* ---- Landing / first page ------------------------------------------------
+   Full-bleed cover behind the navigator. The circles stay on top and usable;
+   hovering one flies the wordmark into the header and shows that section's
+   line here. */
+/* The logo is centred in the free space LEFT of the navigator circles, sized to
+   fill that gap without ever reaching them. `--nav-w` is the circle column
+   width; the tray reserves it on the right so centring happens in the gap. */
+.landing {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  --nav-w: clamp(104px, 9vw, 210px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: var(--nav-w);
+  background: var(--bg);
+  transition: opacity .6s ease, visibility .6s ease;
+}
+.landing.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+.landing-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; padding: 0 clamp(16px, 3vw, 48px); }
+/* Fills most of the free width left of the circles, height capped so it stays
+   comfortably inside the viewport. Aspect ratio (1700:300) is preserved. */
+.landing-logo { display: block; height: auto; width: min(78%, calc(74vh * 5.667)); max-width: 100%; }
+.landing-copy { margin-top: clamp(18px, 3.2vh, 36px); min-height: 2.4em; }
+/* The copy clears out the moment the wordmark starts flying. */
+.landing.is-flying .landing-copy {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity .3s ease, visibility .3s ease, transform .3s ease;
+}
+.landing-line {
+  margin: 0;
+  color: #cfe2f6;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 21px);
+  line-height: 1.7;
+  letter-spacing: .02em;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, .85);
+}
+
+/* The wordmark is moved with a transform computed from the header position, so
+   it lands exactly on the header logo. */
+.landing-logo.is-flying {
+  transition: transform .85s cubic-bezier(.22, .61, .24, 1);
+  will-change: transform;
+}
+.landing-copy { transition: opacity .35s ease, transform .35s ease; }
+.landing-copy.is-swapping { opacity: 0; transform: translateY(8px); }
+
+/* The header wordmark fades in as the flying one lands on it. */
+.brand-logo { opacity: 1; transition: opacity .3s ease; }
+body.landing-active .brand-logo { opacity: 0; }
+body.landing-active .brand-tagline { opacity: 0; transition: opacity .3s ease; }
+
+/* Nothing from the left panel shows while the first page is up; it fades in
+   when the wordmark lands. */
+.writing-pane { transition: opacity .45s ease; }
+body.panel-hidden .writing-pane { opacity: 0; pointer-events: none; }
+body.panel-hidden .center-panel,
+body.panel-hidden .hover-info { visibility: hidden; }
+
+@media (max-width: 760px) {
+  .landing-logo { height: 110px; }
+  .landing-inner { padding: 0 10vw; }
+}
 
 .node-icon { display: grid; place-items: center; width: clamp(24px, 3.3vw, 36px); height: clamp(24px, 3.3vw, 36px); color: #d9efff; }
 .node-icon svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(133, 205, 255, .18)); }
