@@ -287,30 +287,59 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
   .brand-tagline { font-size: 7px; letter-spacing: .19em; }
   .mobile-menu-toggle { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 40px; height: 40px; padding: 8px; border: 1px solid rgba(152, 197, 241, .25); border-radius: 50%; background: rgba(6, 14, 26, .65); }
   .mobile-menu-toggle span { height: 1px; width: 100%; background: #bddcf8; }
-  /* Single column: writing on top, orbit below. */
+  /* Single column: writing on top, nav docked top-right. */
   .universe { grid-template-columns: minmax(0, 1fr); min-height: calc(100svh - 124px); gap: 20px; padding: 12px clamp(14px, 4vw, 24px) 22px; }
   .writing-pane { order: 1; }
-  .orbit-stage { order: 2; width: min(96vw, 620px); max-width: none; justify-self: end; align-self: end; margin: 0; }
+  /* Navigator pinned to the top-right corner of the viewport. */
+  .orbit-stage {
+    order: 2;
+    position: fixed;
+    top: 86px;
+    right: 10px;
+    left: auto;
+    width: auto;
+    max-width: none;
+    justify-self: auto;
+    align-self: auto;
+    margin: 0;
+    padding-bottom: 0;
+    z-index: 20;
+  }
+  .orbit-menu { gap: 6px; }
   .coordinate-one { display: none; }
   .center-panel, .hover-info { max-width: none; }
+  /* The desktop width formula leaves only 200px here — use the full column. */
+  .hover-info.is-minimal { width: 100%; margin-top: 12px; }
   .center-panel { padding: 20px 20px 20px; }
   .panel-content { margin-top: 20px; }
-  .center-panel h1 { font-size: clamp(1.7rem, 7vw, 2.3rem); }
-  .panel-teaser { font-size: 12px; }
+  .center-panel h1 { font-size: 1.45rem; }
+  .panel-teaser { font-size: 11px; }
   .hover-info { padding: 18px 20px 16px; }
-  .hover-info-title { font-size: 1.3rem; }
-  .hover-info-description { font-size: 11.5px; }
+  .hover-info-title { font-size: 1.1rem; }
+  .hover-info-description { font-size: 12px; }
+  /* Long-form copy must be ONE column on phones — two narrow columns ran to
+     thousands of pixels tall. */
+  .hover-info.is-minimal .hover-info-description {
+    display: block;
+    columns: 1;
+    grid-template-columns: none;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .hover-info.is-minimal .hover-info-description > .col-left,
+  .hover-info.is-minimal .hover-info-description > .col-right { display: block; }
   .panel-topline { gap: 5px; font-size: 6px; letter-spacing: .08em; }
   .panel-symbol { width: 27px; height: 27px; margin-bottom: 10px; }
-  .orbit-node { width: clamp(64px, 8vh, 100px); height: clamp(64px, 8vh, 100px); gap: 4px; padding: 6px 4px; }
-  /* Same vertical line as desktop, at this size. */
-  .orbit-menu { gap: 5px; }
-  .node-icon { width: 25px; height: 25px; }
-  .icon-cognika { font-size: 27px; }
-  .icon-cognika span { width: 23px; height: 23px; line-height: 19px; border-width: 1.5px; }
-  .node-label { font-size: 8px; }
-  .node-caption { font-size: 5px; letter-spacing: .06em; }
+  /* Smaller circles so the whole column clears the top bar. */
+  .orbit-node { width: clamp(48px, 6.4vh, 64px); height: clamp(48px, 6.4vh, 64px); gap: 3px; padding: 4px 3px; }
+  .node-icon { width: 20px; height: 20px; }
+  .icon-cognika { font-size: 22px; }
+  .icon-cognika span { width: 19px; height: 19px; line-height: 16px; border-width: 1.5px; }
+  .node-label { font-size: 7px; }
+  .node-caption { font-size: 4.5px; letter-spacing: .05em; }
   .coordinate-one, .coordinate-two { display: none; }
+  /* Leave room for the fixed navigator so text never runs underneath it. */
+  .writing-pane { padding-inline-end: 74px; }
   .footerbar { min-height: 46px; padding-inline: 20px; font-size: 7px; letter-spacing: .12em; }
   .footer-note, .footer-right { gap: 8px; }
   .footer-line { width: 18px; }
@@ -319,17 +348,22 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
 
 @media (max-width: 460px) {
   .universe { min-height: auto; display: block; padding: 6px 0 28px; }
-  .orbit-stage { width: 100%; aspect-ratio: auto; display: block; padding: 0 16px; }
-  .center-panel { padding: 22px 20px; }
+  /* Keep the fixed top-right dock — override the old full-width stack. */
+  .orbit-stage { width: auto; aspect-ratio: auto; display: block; padding: 0; }
+  .center-panel { padding: 22px 60px 22px 20px; }
   .panel-symbol { width: 34px; height: 34px; margin-bottom: 12px; }
-  .center-panel h1 { font-size: 2.25rem; margin-bottom: 12px; }
-  .panel-teaser { max-width: 320px; font-size: 12.5px; line-height: 1.7; }
-  .orbit-menu { position: relative; inset: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-  .orbit-node, .node-about, .node-eos, .node-paia, .node-srm, .node-downloads, .node-contact { position: relative; inset: auto; width: clamp(78px, 22vw, 116px); max-width: 116px; height: auto; aspect-ratio: 1; justify-self: auto; transform: none; padding: 10px 4px; gap: 6px; }
+  .center-panel h1 { font-size: 1.35rem; margin-bottom: 10px; }
+  .panel-teaser { max-width: none; font-size: 10.5px; line-height: 1.6; }
+  .orbit-menu { position: relative; inset: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .orbit-node, .node-about, .node-eos, .node-paia, .node-srm, .node-downloads, .node-contact { position: relative; inset: auto; width: clamp(44px, 11vw, 56px); max-width: 56px; height: auto; aspect-ratio: 1; justify-self: auto; transform: none; padding: 3px 2px; gap: 2px; }
   .orbit-node.is-active { scale: 1.02; }
-  .node-icon { width: 27px; height: 27px; }
-  .node-label { font-size: 9px; }
-  .node-caption { font-size: 6px; letter-spacing: .08em; }
+  .node-icon { width: 17px; height: 17px; }
+  .icon-cognika { font-size: 19px; }
+  .icon-cognika span { width: 16px; height: 16px; line-height: 13px; }
+  .node-label { font-size: 6.5px; }
+  .node-caption { display: none; }
+  .hover-info.is-minimal .hover-info-description { font-size: 11.5px; }
+  .writing-pane { padding-inline-end: 66px; }
   .footerbar { margin-top: 8px; }
 }
 
