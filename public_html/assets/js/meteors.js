@@ -4,6 +4,13 @@
   var ctx = canvas.getContext('2d');
   var W, H, dpr, stars = [], meteors = [], galaxy, nextMeteor = 0;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Meteor head radius in CSS px. The canvas is scaled by dpr, so a literal 1
+  // drew a 2-3px blob on Retina/high-density screens. Dividing by dpr keeps the
+  // head at exactly one device pixel everywhere.
+  var HEAD_RADIUS = 0.5;
+  // When a photographic backdrop is painted behind the canvas, skip the opaque
+  // black galaxy fill so the photo stays visible through the stars and meteors.
+  var photoBackdrop = Boolean(document.querySelector('.backdrop'));
 
   function build() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -17,12 +24,18 @@
     galaxy.width = W;
     galaxy.height = H;
     var g = galaxy.getContext('2d');
-    g.fillStyle = '#000';
-    g.fillRect(0, 0, W, H);
+    if (!photoBackdrop) {
+      g.fillStyle = '#000';
+      g.fillRect(0, 0, W, H);
+    } else {
+      g.clearRect(0, 0, W, H);
+    }
     g.translate(W / 2, H / 2);
     g.rotate(-0.5);
     var len = Math.hypot(W, H);
-    for (var i = 0; i < 90; i++) {
+    // The photo supplies the galaxy, so skip the procedural blue haze.
+    var hazeCount = photoBackdrop ? 0 : 90;
+    for (var i = 0; i < hazeCount; i++) {
       var x = (Math.random() - 0.5) * len;
       var y = (Math.random() - 0.5) * H * 0.18 * (Math.random() + Math.random());
       var r = 40 + Math.random() * 120;
@@ -56,9 +69,9 @@
       y: -20 + Math.random() * H * 0.35,
       vx: Math.cos(ang) * sp,
       vy: Math.sin(ang) * sp,
-      len: 90 + Math.random() * 120,
+      len: 7 + Math.random() * 8,
       life: 0,
-      max: 70 + Math.random() * 40
+      max: 220 + Math.random() * 120
     });
   }
 
@@ -91,24 +104,28 @@
       m.y += m.vy;
       m.life++;
       var fade = Math.min(1, m.life / 8) * Math.max(0, 1 - m.life / m.max);
-      var mag = Math.hypot(m.vx, m.vy);
-      var tx = m.x - m.vx / mag * m.len;
-      var ty = m.y - m.vy / mag * m.len;
+      // Tail = point `len` px behind the head along the (unit) velocity vector.
+      var mag = Math.hypot(m.vx, m.vy) || 1;
+      var tx = m.x - (m.vx / mag) * m.len;
+      var ty = m.y - (m.vy / mag) * m.len;
+      ctx.save();
       var gr = ctx.createLinearGradient(m.x, m.y, tx, ty);
       gr.addColorStop(0, 'rgba(255,255,255,' + fade + ')');
       gr.addColorStop(0.3, 'rgba(160,190,255,' + fade * 0.5 + ')');
       gr.addColorStop(1, 'rgba(120,140,255,0)');
       ctx.strokeStyle = gr;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 0.6;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(m.x, m.y);
       ctx.lineTo(tx, ty);
       ctx.stroke();
+      // Head stays one device pixel wide regardless of dpr.
       ctx.fillStyle = 'rgba(255,255,255,' + fade + ')';
       ctx.beginPath();
-      ctx.arc(m.x, m.y, 1.8, 0, 6.283);
+      ctx.arc(m.x, m.y, HEAD_RADIUS / dpr, 0, 6.283);
       ctx.fill();
+      ctx.restore();
       if (m.life > m.max || m.x > W + 200 || m.y > H + 200) meteors.splice(k, 1);
     }
     requestAnimationFrame(frame);

@@ -15,14 +15,43 @@
 }
 
 * { box-sizing: border-box; }
+/* html keeps the base colour; body must stay transparent so the fixed
+   negative-z sky layers (.meteor-sky at -3, .cosmos at -2) paint above it. */
 html { min-width: 320px; background: var(--bg); scroll-behavior: smooth; }
-body { min-width: 320px; min-height: 100svh; margin: 0; color: var(--text); background: var(--bg); font-family: var(--sans); overflow-x: hidden; }
+body { min-width: 320px; min-height: 100svh; margin: 0; color: var(--text); background: transparent; font-family: var(--sans); overflow-x: hidden; }
 button, a { font: inherit; }
 button { color: inherit; }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-offset: 5px; }
 
-.cosmos { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, #09111d 0, #050912 37%, #03050a 74%); }
+/* Photographic galaxy backdrop. Sized to fill the frame with the photo's own
+   black space; the image already contains black at its edges, so no colour
+   is added on top. */
+.backdrop { position: fixed; inset: 0; z-index: -4; pointer-events: none; overflow: hidden; background: var(--bg); }
+.backdrop picture { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.5); display: block; width: 100%; height: 100%;
+  /* Fade the photo's own edges to fully transparent so the rectangular trim
+     disappears into the black behind it. Alpha only — no colour is added.
+     Masking the picture (not the img) keeps the ellipse aligned with the
+     scaled box, and the ramp ends inside the frame so no step remains. */
+  -webkit-mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 18%, rgba(0, 0, 0, .88) 36%, rgba(0, 0, 0, .58) 52%, rgba(0, 0, 0, .28) 68%, rgba(0, 0, 0, .07) 84%, transparent 100%);
+  mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 18%, rgba(0, 0, 0, .88) 36%, rgba(0, 0, 0, .58) 52%, rgba(0, 0, 0, .28) 68%, rgba(0, 0, 0, .07) 84%, transparent 100%);
+}
+.backdrop img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; filter: brightness(.6); }
+/* Feather only the outer edge into pure black — no tint, no colour shift. */
+.backdrop::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 48%, transparent 0 46%, rgba(0, 0, 0, .28) 72%, rgba(0, 0, 0, .70) 92%, var(--bg) 100%); }
+
+.cosmos { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; background: transparent; }
 .cosmos::before { content: ''; position: absolute; inset: 0; opacity: .78; background: radial-gradient(ellipse at 50% 48%, transparent 0 24%, rgba(1, 3, 8, .22) 53%, #03050a 100%); z-index: 4; }
+/* With the photo backdrop behind, soften the vignette so the galaxy stays visible. */
+.has-backdrop .cosmos::before { opacity: .22; background: radial-gradient(ellipse at 50% 48%, transparent 0 34%, rgba(1, 3, 8, .08) 60%, rgba(3, 5, 10, .95) 94%); }
+/* The photo already carries its own black space and colour, so the CSS
+   nebula gradients and the blue-tinted vignette are switched off — they were
+   adding a blue cast that is not in the original image. */
+.has-backdrop .nebula { display: none; }
+/* With the photo present, the canvas already draws the stars, so the CSS
+   dot layers are redundant (and their blue #9dcfff/#b4d7ff tint would shift
+   the photo's colour). */
+.has-backdrop .star-layer { display: none; }
+.has-backdrop .cosmos::before { opacity: .16; background: radial-gradient(ellipse at 50% 48%, transparent 0 40%, rgba(0, 0, 0, .10) 70%, rgba(0, 0, 0, .55) 100%); }
 .nebula { position: absolute; left: 50%; top: 49%; width: min(112vw, 1400px); height: min(68vw, 760px); border-radius: 50%; transform: translate(-50%, -50%) rotate(-19deg); filter: blur(30px); opacity: .72; }
 .nebula-a { background: conic-gradient(from 24deg at 50% 50%, transparent 0deg, rgba(35, 84, 149, .02) 15deg, rgba(69, 131, 203, .27) 28deg, transparent 48deg, rgba(25, 72, 132, .13) 84deg, transparent 112deg, rgba(184, 134, 103, .18) 153deg, transparent 174deg, rgba(67, 116, 191, .26) 210deg, transparent 236deg, rgba(40, 77, 143, .2) 275deg, transparent 308deg, rgba(95, 153, 222, .17) 334deg, transparent 360deg); mask-image: radial-gradient(ellipse at center, #000 8%, transparent 69%); animation: galaxyDrift 95s linear infinite; }
 .nebula-b { width: min(98vw, 1190px); height: min(48vw, 560px); opacity: .8; filter: blur(22px); background: radial-gradient(ellipse at 49% 49%, rgba(3, 5, 10, .1) 0 15%, transparent 16% 24%, rgba(77, 140, 207, .22) 28%, transparent 42%), radial-gradient(ellipse at 58% 57%, rgba(208, 159, 111, .16), transparent 25%), radial-gradient(ellipse at 38% 42%, rgba(47, 105, 181, .23), transparent 35%); mask-image: radial-gradient(ellipse, #000 12%, transparent 70%); transform: translate(-50%, -50%) rotate(-19deg); }
@@ -43,56 +72,138 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .brand-name { font-size: clamp(1.35rem, 2.05vw, 2rem); font-weight: 400; letter-spacing: .34em; line-height: 1; }
 .brand-period { color: var(--blue); }
 .brand-tagline { color: #9aafc7; font-family: var(--mono); font-size: 9px; letter-spacing: .30em; }
-.topbar-meta { display: flex; align-items: center; gap: 13px; color: #9eb2ca; font: 9px var(--mono); letter-spacing: .22em; }
-.topbar-meta i { display: block; width: 3px; height: 3px; border-radius: 50%; background: #6e91b7; }
 .mobile-menu-toggle { display: none; }
 
-.universe { position: relative; min-height: calc(100svh - 155px); display: grid; place-items: center; isolation: isolate; }
-.orbit-stage { position: relative; width: min(80vmin, 790px); aspect-ratio: 1; display: grid; place-items: center; }
-.orbit { position: absolute; border: 1px solid rgba(148, 195, 240, .19); border-radius: 50%; pointer-events: none; }
-.orbit-outer { width: 82%; height: 82%; border-color: rgba(165, 208, 255, .34); box-shadow: 0 0 30px rgba(49, 125, 205, .025), inset 0 0 28px rgba(49, 125, 205, .02); }
-.orbit-inner { width: 59%; height: 59%; border-style: dashed; border-color: rgba(145, 195, 246, .12); animation: orbitSpin 140s linear infinite; }
-.orbit-inner::after { content: ''; position: absolute; inset: -8px; border: 1px solid rgba(127, 186, 246, .04); border-radius: 50%; }
-.orbit-tick { position: absolute; z-index: 1; background: linear-gradient(transparent, rgba(151, 210, 255, .6), transparent); opacity: .6; }
-.tick-top, .tick-bottom { width: 1px; height: 34px; left: 50%; transform: translateX(-50%); }
-.tick-top { top: 8.9%; }
-.tick-bottom { bottom: 8.9%; }
-.tick-left, .tick-right { width: 32px; height: 1px; top: 50%; background: linear-gradient(90deg, transparent, rgba(151, 210, 255, .6), transparent); }
-.tick-left { left: 8.9%; }
-.tick-right { right: 8.9%; }
+/* Two-column split: left = all writing, right = the orbit wheel. */
+.universe { --orbit-lift: clamp(24px, 7vh, 72px); position: relative; min-height: calc(100svh - 155px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(16px, 3vw, 56px); padding-inline: clamp(20px, 4vw, 66px); isolation: isolate; }
 
-.center-panel { position: relative; z-index: 3; width: 46%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 38px 34px 32px; text-align: center; border: 1px solid rgba(133, 184, 242, .28); border-radius: 50%; overflow: hidden; background: radial-gradient(ellipse at 50% 10%, rgba(24, 58, 96, .32), transparent 54%), radial-gradient(ellipse at 50% 100%, rgba(8, 19, 37, .98), rgba(2, 5, 11, .95) 62%); box-shadow: 0 0 60px rgba(31, 116, 208, .12), inset 0 0 45px rgba(64, 137, 211, .055); backdrop-filter: blur(9px); transition: border-color .4s, box-shadow .4s; }
-.panel-content { display: flex; flex-direction: column; align-items: center; width: 100%; }
-.center-panel::before { content: ''; position: absolute; inset: 9px; border: 1px solid rgba(177, 215, 255, .065); border-radius: 50%; pointer-events: none; }
-.center-panel::after { content: ''; position: absolute; top: -30%; left: -20%; width: 140%; height: 55%; transform: rotate(-24deg); background: linear-gradient(transparent, rgba(140, 201, 255, .035), transparent); pointer-events: none; }
-.panel-topline { position: absolute; top: 12%; left: 15%; right: 15%; display: flex; align-items: center; gap: 7px; color: #7f9ab7; font: 8px var(--mono); letter-spacing: .16em; white-space: nowrap; }
-.status-dot { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: #8bd5ff; box-shadow: 0 0 8px rgba(88, 185, 255, .85); }
-.panel-index { margin-left: auto; opacity: .7; }
-.panel-symbol { width: 36px; height: 36px; margin-bottom: 5px; color: var(--blue); opacity: .92; filter: drop-shadow(0 0 9px rgba(92, 179, 255, .32)); }
-.panel-symbol svg { width: 100%; height: 100%; }
-.panel-kicker { margin: 0 0 7px; color: #9eb6d0; font: 8px var(--mono); letter-spacing: .22em; line-height: 1.7; text-transform: uppercase; }
-.center-panel h1 { margin: 0 0 12px; font-size: clamp(1.8rem, 3.5vmin, 2.65rem); line-height: 1; font-weight: 400; letter-spacing: .05em; }
-.panel-description { max-width: 255px; margin: 0 auto 17px; color: #bdc9d7; font-size: clamp(10px, 1.3vmin, 12px); font-weight: 300; line-height: 1.7; }
-.panel-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 280px; }
-.panel-links button { border: 1px solid rgba(141, 186, 235, .20); background: rgba(11, 23, 39, .55); color: #a9c3df; border-radius: 999px; padding: 6px 9px; font: 8px var(--mono); letter-spacing: .015em; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
-.panel-links button span { margin-left: 4px; color: #7bc6ff; }
-.panel-links button:hover, .panel-links button:focus-visible { color: #fff; border-color: rgba(125, 199, 255, .65); background: rgba(40, 110, 173, .18); }
-.panel-detail { min-height: 20px; max-width: 260px; margin: 7px 0 0; color: #6f91b5; font-size: 9px; line-height: 1.45; }
-.explore-button { display: flex; align-items: center; gap: 12px; margin-top: 8px; padding: 8px 0; border: 0; border-bottom: 1px solid rgba(123, 190, 248, .3); background: none; color: #b7d8f7; font: 9px var(--mono); letter-spacing: .20em; cursor: pointer; transition: color .2s, border-color .2s; }
-.explore-button span { font-size: 14px; transition: transform .2s; }
-.explore-button:hover { color: white; border-color: var(--blue); }
-.explore-button:hover span { transform: translate(3px, -2px); }
+.writing-pane { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 22px; min-width: 0; padding-inline-start: clamp(0px, 2vw, 34px); }
 
-.orbit-menu { position: absolute; inset: 0; z-index: 4; }
-.orbit-node { position: absolute; width: clamp(84px, 13.8%, 116px); aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid rgba(154, 201, 250, .39); border-radius: 50%; background: radial-gradient(circle at 50% 28%, rgba(22, 44, 68, .68), rgba(3, 9, 18, .9) 68%); box-shadow: inset 0 0 18px rgba(88, 149, 215, .055); cursor: pointer; transform: translate(-50%, -50%); transition: border-color .25s, box-shadow .25s, background .25s, scale .25s; text-align: center; padding: 10px 6px; }
+/* Navigator column, anchored to the bottom-right corner of the page.
+   No rings, no hub — the six nodes stacked in a single vertical line.
+   Width comes from the circles themselves, so they keep their full diameter.
+   The column is lifted OFF the footer by `--orbit-lift` so it reads as
+   floating rather than resting on the footer rule. */
+.orbit-stage { position: relative; justify-self: end; align-self: end; padding-bottom: var(--orbit-lift); }
+
+.orbit-menu { position: relative; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: clamp(6px, 1vh, 10px); }
+/* Six circles + five gaps + the lift must fit between the top bar and footer,
+   i.e. `100svh − 155px` of budget. Solving 6d + 5·10 + lift gives the size
+   below, so the stack stays as large as possible without clipping. The floor
+   is 100px — the smallest diameter in which icon + label + caption still fit. */
+.orbit-node { position: relative; width: clamp(100px, calc((100svh - 255px) / 6), 139px); height: clamp(100px, calc((100svh - 255px) / 6), 139px); aspect-ratio: 1; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid rgba(154, 201, 250, .39); border-radius: 50%; background: radial-gradient(circle at 50% 28%, rgba(22, 44, 68, .68), rgba(3, 9, 18, .9) 68%); box-shadow: inset 0 0 18px rgba(88, 149, 215, .055); cursor: pointer; transition: border-color .25s, box-shadow .25s, background .25s, scale .25s; text-align: center; padding: 10px 6px; }
 .orbit-node:hover, .orbit-node:focus-visible, .orbit-node.is-active { border-color: rgba(150, 214, 255, .92); background: radial-gradient(circle at 50% 27%, rgba(32, 77, 116, .77), rgba(3, 9, 18, .96) 70%); box-shadow: 0 0 30px rgba(54, 148, 235, .17), inset 0 0 20px rgba(88, 174, 244, .11); }
 .orbit-node.is-active { scale: 1.035; }
-.node-about { left: 18%; top: 22%; }
-.node-eos { left: 50%; top: 7%; }
-.node-paia { left: 82%; top: 22%; }
-.node-srm { left: 82%; top: 70%; }
-.node-downloads { left: 50%; top: 93%; }
-.node-contact { left: 18%; top: 70%; }
+/* Single vertical line, numbered 01 → 06 from top to bottom.
+   `order` re-sequences the DOM (which starts at "about") into menu order. */
+.node-about     { order: 1; }
+.node-eos       { order: 2; }
+.node-paia      { order: 3; }
+.node-srm       { order: 4; }
+.node-downloads { order: 5; }
+.node-contact   { order: 6; }
+
+/* Summary + detail text, sitting directly on the galaxy backdrop.
+   No border, no panel fill — just typography with a soft shadow for contrast. */
+.center-panel { position: relative; z-index: 3; width: 100%; max-width: 430px; display: flex; flex-direction: column; align-items: flex-start; padding: 0; text-align: left; border: 0; border-radius: 0; background: none; box-shadow: none; backdrop-filter: none; }
+.panel-content { display: flex; flex-direction: column; align-items: flex-start; width: 100%; margin-top: 20px; }
+.center-panel::before, .center-panel::after { content: none; }
+.panel-topline { position: static; display: flex; align-items: center; gap: 7px; width: 100%; color: #9fb6ce; font: 8px var(--mono); letter-spacing: .16em; white-space: nowrap; text-shadow: 0 1px 10px rgba(0, 0, 0, .85); }
+.status-dot { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: #8bd5ff; box-shadow: 0 0 8px rgba(88, 185, 255, .85); }
+.panel-index { margin-left: auto; opacity: .8; }
+.panel-symbol { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 16px; color: var(--blue); opacity: .95; filter: none; }
+.panel-symbol svg { width: 100%; height: 100%; }
+/* Favicon used as the Cognika mark: square art, so round it to sit like an icon. */
+.panel-symbol .panel-logo { display: block; width: 100%; height: 100%; border-radius: 9px; }
+.center-panel h1 { margin: 0 0 14px; font-size: clamp(2.1rem, 4.4vmin, 3.1rem); line-height: 1; font-weight: 400; letter-spacing: .05em; text-shadow: 0 2px 24px rgba(0, 0, 0, .9), 0 0 40px rgba(30, 110, 190, .35); }
+.panel-teaser { max-width: 330px; margin: 0; color: #c3d2e2; font-size: 13px; font-weight: 300; line-height: 1.75; text-shadow: 0 1px 12px rgba(0, 0, 0, .9); }
+
+/* Detail block for the hovered circle. Borderless. Once revealed it stays
+   put so the topic links and explore button remain clickable. */
+.hover-info { position: relative; left: auto; top: auto; z-index: 6; width: 100%; max-width: 560px; min-height: 210px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; backdrop-filter: none; transform: translateY(-8px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .22s ease, transform .22s ease, visibility .22s; }
+.hover-info.is-visible { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
+.hover-info-topline { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; color: #9fb6ce; font: 8px var(--mono); letter-spacing: .16em; white-space: nowrap; text-shadow: 0 1px 10px rgba(0, 0, 0, .85); }
+.hover-info-dot { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: #8bd5ff; box-shadow: 0 0 8px rgba(88, 185, 255, .85); }
+.hover-info-index { margin-left: auto; opacity: .8; }
+.hover-info-kicker { margin: 0 0 8px; color: #a8c1d8; font: 8px var(--mono); letter-spacing: .2em; line-height: 1.7; text-transform: uppercase; text-shadow: 0 1px 10px rgba(0, 0, 0, .9); }
+.hover-info-title { margin: 0; color: #f2f8ff; font-size: clamp(1.5rem, 2.6vmin, 1.95rem); font-weight: 400; line-height: 1.1; letter-spacing: .03em; text-shadow: 0 2px 22px rgba(0, 0, 0, .9), 0 0 34px rgba(30, 110, 190, .3); }
+.hover-info-rule { height: 1px; width: 84px; margin: 14px 0 14px; background: linear-gradient(90deg, rgba(135, 204, 255, .75), transparent); }
+.hover-info-description { margin: 0 0 16px; color: #c6d4e3; font-size: 12.5px; font-weight: 300; line-height: 1.75; text-shadow: 0 1px 12px rgba(0, 0, 0, .9); }
+.hover-info-topics { display: flex; flex-wrap: wrap; gap: 7px; }
+/* Text links rather than filled pills, so nothing reads as a "card". */
+.hover-info-topics button { border: 0; border-bottom: 1px solid rgba(141, 186, 235, .35); background: none; color: #a9c8e6; padding: 3px 0; font: 8.5px var(--mono); letter-spacing: .04em; cursor: pointer; text-shadow: 0 1px 10px rgba(0, 0, 0, .9); transition: color .2s, border-color .2s; }
+.hover-info-topics button span { margin-left: 4px; color: #7bc6ff; }
+.hover-info-topics button:hover, .hover-info-topics button:focus-visible { color: #fff; border-color: rgba(125, 199, 255, .9); }
+.hover-info-detail { min-height: 30px; margin: 12px 0 0; color: #9fb2c6; font-size: 11px; line-height: 1.55; text-shadow: 0 1px 10px rgba(0, 0, 0, .9); }
+.hover-info-action { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; padding: 6px 0; border: 0; border-bottom: 1px solid rgba(123, 190, 248, .45); background: none; color: #cfe6fb; font: 12px var(--mono); letter-spacing: .22em; cursor: pointer; text-shadow: 0 1px 10px rgba(0, 0, 0, .9); transition: color .2s, border-color .2s; }
+.hover-info-action span { font-size: 17px; transition: transform .2s; }
+.hover-info-action:hover, .hover-info-action:focus-visible { color: #fff; border-color: var(--blue); }
+.hover-info-action:hover span { transform: translate(3px, -2px); }
+
+/* Minimal mode (used by pat_ia): drop the eyebrow line, title, kicker and rule —
+   the panel is just the copy and the explore link. Topics/detail never show. */
+.hover-info.is-minimal .hover-info-topline,
+.hover-info.is-minimal .hover-info-kicker,
+.hover-info.is-minimal .hover-info-rule,
+.hover-info.is-minimal .hover-info-title { display: none; }
+.hover-info-topics,
+.hover-info-detail { display: none; }
+.hover-info.is-minimal .hover-info-description { margin: 0; font-size: 15px; line-height: 1.8; }
+/* pat_ia has no icon: drop the symbol box entirely. */
+.panel-symbol[hidden] { display: none !important; }
+
+/* pat_ia / e_os: the copy block sits in normal flow directly BELOW the title, so
+   it can never overlap it. No translate nudges — position follows the layout.
+   `width` is viewport-based so the two columns get the full reading width. */
+.hover-info.is-minimal {
+  position: relative;
+  left: auto;
+  top: auto;
+  flex: 0 0 auto;
+  width: min(calc(100vw - 300px), 1180px);
+  max-width: none;
+  min-height: 0;
+  margin-top: 18px;
+  transform: none;
+}
+.hover-info.is-minimal.is-visible { transform: none; }
+/* pat_ia: two fixed columns. A grid (not CSS multi-column) so the break point is
+   explicit and both columns start at the same height. */
+.hover-info.is-minimal .hover-info-description {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(28px, 3.6vw, 56px);
+  align-items: start;
+}
+/* Column 1 = intro + "The system is consisted of:" heading.
+   Column 2 = the module list + closing paragraphs. */
+.hover-info.is-minimal .hover-info-description > .col-left { grid-column: 1; }
+.hover-info.is-minimal .hover-info-description > .col-right { grid-column: 2; }
+.hover-info.is-minimal .hover-info-description > .col-right,
+.hover-info.is-minimal .hover-info-description > .col-left { display: flex; flex-direction: column; }
+.hover-info-description p:first-child { margin-top: 0; }
+/* Paragraph rhythm and the module list from the source document. */
+.hover-info-description p { margin: 0 0 12px; }
+.hover-info-description p:last-child { margin-bottom: 0; }
+.hover-info-list { margin: 6px 0 12px; padding-left: 18px; list-style: disc; }
+.hover-info-list li { margin: 2px 0; }
+/* pat_ia: the summary card and the detail block share the top area, so lift the
+   card up to clear the two-column text below it. */
+/* pat_ia / e_os: title + teaser lifted as one block, keeping the panel up top. */
+.writing-pane.is-minimal { justify-content: flex-start; }
+/* Teaser on one line: lift the 330px cap for the long-form panels. */
+.writing-pane.is-minimal .panel-teaser { max-width: none; white-space: nowrap; }
+/* Small side caption removed (it sits in .orbit-stage, not .writing-pane). */
+.orbit-stage .coordinate-two { display: none; }
+/* Title sits in normal flow, directly above the teaser. No positioning tricks. */
+.writing-pane.is-minimal .panel-content { transform: none; }
+.writing-pane.is-minimal .center-panel { position: static; }
+/* The default 430px cap wraps "Pat Intelligent Assistant" onto two lines. */
+.writing-pane.is-minimal .center-panel { max-width: none; }
+.writing-pane.is-minimal #panelTitle { white-space: nowrap; }
+/* Second eyebrow line gone for pat_ia. */
+.writing-pane.is-minimal .panel-topline { display: none; }
+
 .node-icon { display: grid; place-items: center; width: clamp(24px, 3.3vw, 36px); height: clamp(24px, 3.3vw, 36px); color: #d9efff; }
 .node-icon svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(133, 205, 255, .18)); }
 .icon-cognika { font-size: 35px; font-weight: 300; line-height: 1; letter-spacing: -.09em; }
@@ -101,8 +212,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .node-caption { color: #7893af; font: 7px var(--mono); letter-spacing: .13em; }
 .orbit-node.is-active .node-caption { color: #a5ccec; }
 .stage-coordinate { position: absolute; color: rgba(133, 164, 195, .51); font: 7px/1.8 var(--mono); letter-spacing: .17em; }
-.coordinate-one { left: 2%; top: 43%; }
-.coordinate-two { right: 0; bottom: 31%; text-align: right; }
+/* Lives in the left writing pane now. */
+.coordinate-one { left: 0; bottom: 2%; }
+/* Sits beside the node column, aligned to the lift so it stays with the column. */
+.coordinate-two { right: calc(100% + 22px); bottom: calc(var(--orbit-lift) + 2%); text-align: right; white-space: nowrap; }
+
+/* The card occupies the left margin, so fade the left coordinate readout
+   out of the way while it is open. */
+body.card-open .coordinate-one { opacity: 0; }
+.stage-coordinate { transition: opacity .22s ease; }
 
 .footerbar { min-height: 59px; color: #849db7; font: 8px var(--mono); letter-spacing: .2em; }
 .footer-note, .footer-right { display: flex; align-items: center; gap: 18px; }
@@ -121,7 +239,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .dialog-note { color: #7f95ad; font-size: 12px; line-height: 1.8; }
 
 @keyframes galaxyDrift { to { transform: translate(-50%, -50%) rotate(341deg); } }
-@keyframes orbitSpin { to { transform: rotate(360deg); } }
 @keyframes meteorFall {
   0%, 62% { opacity: 0; translate: 0 0; }
   64% { opacity: .95; }
@@ -129,52 +246,47 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   100% { opacity: 0; translate: -270px 175px; }
 }
 
-.meteor-sky { position: fixed; inset: 0; z-index: -3; display: block; width: 100%; height: 100%; pointer-events: none; background: #03050a; }
-html.sky-active .meteor-sky ~ * .meteor,
-html.sky-active .cosmos > .meteor { display: none; }
+.meteor-sky { position: fixed; inset: 0; z-index: -3; display: block; width: 100%; height: 100%; pointer-events: none; background: transparent; }
+/* The canvas draws the streaks, so the CSS .meteor spans must never render.
+   Hidden unconditionally — not gated on the JS-added .sky-active class — so
+   the large 170px streaks cannot appear if the canvas fails to initialise. */
+.meteor-sky ~ * .meteor,
+.cosmos > .meteor { display: none; }
 html.sky-active .cosmos { background: transparent; }
 html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%, transparent 0 30%, rgba(1, 3, 8, .18) 58%, #03050a 100%); }
 
-/* Keeps the circular panel content inside its circle on tablets and small laptop windows. */
-@media (min-width: 461px) and (max-width: 1180px) {
-  .panel-content { zoom: .80; }
-}
-
-@media (min-width: 461px) and (max-width: 900px) {
-  .panel-content { zoom: .66; }
-}
-
-@media (min-width: 461px) and (max-width: 760px) {
-  .panel-content { zoom: .54; }
+/* Tablet / small laptop: keep the split, just tighten the typography. */
+@media (min-width: 761px) and (max-width: 1180px) {
+  .universe { gap: clamp(12px, 2vw, 32px); padding-inline: clamp(16px, 3vw, 40px); }
+  .center-panel, .hover-info { padding: 20px 20px 18px; }
+  .hover-info-description { font-size: 11px; }
+  .center-panel h1 { font-size: clamp(1.7rem, 3.4vmin, 2.3rem); }
 }
 
 @media (max-width: 760px) {
   .topbar { min-height: 78px; padding-inline: 20px; }
   .brand-name { font-size: 1.3rem; letter-spacing: .25em; }
   .brand-tagline { font-size: 7px; letter-spacing: .19em; }
-  .topbar-meta { display: none; }
   .mobile-menu-toggle { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 40px; height: 40px; padding: 8px; border: 1px solid rgba(152, 197, 241, .25); border-radius: 50%; background: rgba(6, 14, 26, .65); }
   .mobile-menu-toggle span { height: 1px; width: 100%; background: #bddcf8; }
-  .universe { min-height: calc(100svh - 124px); padding: 8px 0 22px; }
-  .orbit-stage { width: min(96vw, 650px); }
-  .center-panel { width: 48%; padding: 31px 18px 26px; }
-  .panel-content { zoom: .66; }
-  .panel-topline { left: 14%; right: 14%; top: 12%; gap: 5px; font-size: 6px; letter-spacing: .08em; }
-  .panel-symbol { width: 27px; height: 27px; margin-bottom: 3px; }
-  .panel-kicker { font-size: 6px; letter-spacing: .11em; margin-bottom: 6px; }
-  .center-panel h1 { font-size: clamp(1.4rem, 5.5vw, 2rem); margin-bottom: 7px; }
-  .panel-description { max-width: 220px; font-size: clamp(8px, 2.1vw, 11px); line-height: 1.45; margin-bottom: 9px; }
-  .panel-links { gap: 4px; max-width: 220px; }
-  .panel-links button { padding: 5px 7px; font-size: 7px; }
-  .panel-detail { font-size: 7px; min-height: 13px; margin-top: 5px; }
-  .explore-button { font-size: 7px; letter-spacing: .12em; padding: 5px 0; margin-top: 4px; }
-  .orbit-node { width: clamp(70px, 17%, 100px); gap: 4px; padding: 6px 4px; }
-  .node-about { left: 15%; top: 24%; }
-  .node-eos { top: 6%; }
-  .node-paia { left: 85%; top: 24%; }
-  .node-srm { left: 85%; top: 69%; }
-  .node-downloads { top: 94%; }
-  .node-contact { left: 15%; top: 69%; }
+  /* Single column: writing on top, orbit below. */
+  .universe { grid-template-columns: minmax(0, 1fr); min-height: calc(100svh - 124px); gap: 20px; padding: 12px clamp(14px, 4vw, 24px) 22px; }
+  .writing-pane { order: 1; }
+  .orbit-stage { order: 2; width: min(96vw, 620px); max-width: none; justify-self: end; align-self: end; margin: 0; }
+  .coordinate-one { display: none; }
+  .center-panel, .hover-info { max-width: none; }
+  .center-panel { padding: 20px 20px 20px; }
+  .panel-content { margin-top: 20px; }
+  .center-panel h1 { font-size: clamp(1.7rem, 7vw, 2.3rem); }
+  .panel-teaser { font-size: 12px; }
+  .hover-info { padding: 18px 20px 16px; }
+  .hover-info-title { font-size: 1.3rem; }
+  .hover-info-description { font-size: 11.5px; }
+  .panel-topline { gap: 5px; font-size: 6px; letter-spacing: .08em; }
+  .panel-symbol { width: 27px; height: 27px; margin-bottom: 10px; }
+  .orbit-node { width: clamp(64px, 8vh, 100px); height: clamp(64px, 8vh, 100px); gap: 4px; padding: 6px 4px; }
+  /* Same vertical line as desktop, at this size. */
+  .orbit-menu { gap: 5px; }
   .node-icon { width: 25px; height: 25px; }
   .icon-cognika { font-size: 27px; }
   .icon-cognika span { width: 23px; height: 23px; line-height: 19px; border-width: 1.5px; }
@@ -189,22 +301,13 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
 
 @media (max-width: 460px) {
   .universe { min-height: auto; display: block; padding: 6px 0 28px; }
-  .orbit-stage { width: 100%; aspect-ratio: auto; display: flex; flex-direction: column; gap: 0; padding: 0 16px; }
-  .orbit, .orbit-tick { display: none; }
-  .center-panel { order: 0; width: min(100%, 390px); min-height: 395px; aspect-ratio: auto; margin: 0 auto 22px; border-radius: 24px; padding: 54px 24px 26px; }
-  .panel-content { zoom: 1; }
-  .center-panel::before { border-radius: 18px; }
-  .panel-topline { top: 24px; left: 24px; right: 24px; font-size: 8px; }
-  .panel-symbol { width: 35px; height: 35px; margin: 7px 0 13px; }
-  .panel-kicker { font-size: 8px; letter-spacing: .18em; }
+  .orbit-stage { width: 100%; aspect-ratio: auto; display: block; padding: 0 16px; }
+  .center-panel { padding: 22px 20px; }
+  .panel-symbol { width: 34px; height: 34px; margin-bottom: 12px; }
   .center-panel h1 { font-size: 2.25rem; margin-bottom: 12px; }
-  .panel-description { max-width: 300px; font-size: 12px; line-height: 1.7; margin-bottom: 18px; }
-  .panel-links { max-width: 310px; gap: 7px; }
-  .panel-links button { font-size: 9px; padding: 8px 10px; }
-  .panel-detail { min-height: 30px; max-width: 300px; font-size: 10px; margin-top: 10px; }
-  .explore-button { margin-top: 10px; font-size: 9px; }
-  .orbit-menu { position: relative; inset: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .orbit-node, .node-about, .node-eos, .node-paia, .node-srm, .node-downloads, .node-contact { position: relative; inset: auto; width: 100%; max-width: 116px; aspect-ratio: 1; justify-self: center; transform: none; padding: 10px 4px; gap: 6px; }
+  .panel-teaser { max-width: 320px; font-size: 12.5px; line-height: 1.7; }
+  .orbit-menu { position: relative; inset: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .orbit-node, .node-about, .node-eos, .node-paia, .node-srm, .node-downloads, .node-contact { position: relative; inset: auto; width: clamp(78px, 22vw, 116px); max-width: 116px; height: auto; aspect-ratio: 1; justify-self: auto; transform: none; padding: 10px 4px; gap: 6px; }
   .orbit-node.is-active { scale: 1.02; }
   .node-icon { width: 27px; height: 27px; }
   .node-label { font-size: 9px; }
