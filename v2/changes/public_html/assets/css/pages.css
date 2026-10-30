@@ -1,0 +1,391 @@
+/* Cognika v2 — content pages.
+ *
+ * Shared styling for the crawlable sub-pages (/about/, /e-os/, /pa-ia/,
+ * /srm-p/, /contact/). This file only ADDS layout for long-form content.
+ * It imports nothing and does not modify the tokens or classes defined in
+ * styles.css, so the existing landing page is unaffected.
+ *
+ * Everything here reads from the :root custom properties in styles.css:
+ *   --bg --text --muted --dim --blue --blue-strong --line --panel
+ *   --mono --sans
+ */
+
+.page-shell {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 66px) clamp(56px, 9vh, 110px);
+}
+
+/* ---- Site navigation (real <a> links, identical on every page) ---- */
+
+.site-nav {
+  position: relative;
+  z-index: 20;
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, rgba(3, 5, 10, .78), rgba(3, 5, 10, .18));
+}
+
+.site-nav-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(12px, 2vw, 30px);
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px clamp(20px, 4vw, 66px);
+}
+
+.site-nav .brand { flex: 0 0 auto; }
+
+.site-nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(10px, 1.6vw, 26px);
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.site-nav-link {
+  display: inline-block;
+  padding: 6px 2px;
+  border-bottom: 1px solid transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .18s ease, border-color .18s ease;
+}
+
+.site-nav-link:hover { color: var(--text); border-bottom-color: var(--line); }
+
+.site-nav-link[aria-current="page"] {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
+/* ---- Breadcrumbs ---- */
+
+.breadcrumbs {
+  margin: clamp(20px, 3vw, 34px) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.breadcrumbs li + li::before { content: '/'; margin-right: 8px; color: var(--dim); }
+.breadcrumbs a { color: var(--muted); text-decoration: none; border-bottom: 1px solid transparent; }
+.breadcrumbs a:hover { color: var(--blue); border-bottom-color: var(--line); }
+
+/* ---- Page header ---- */
+
+.page-header { margin: clamp(28px, 5vw, 62px) 0 clamp(26px, 4vw, 48px); }
+
+.page-eyebrow {
+  margin: 0 0 14px;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .30em;
+  text-transform: uppercase;
+}
+
+.page-title {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(30px, 5.4vw, 62px);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+}
+
+.page-subtitle {
+  margin: 14px 0 0;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.3vw, 14px);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.page-lede {
+  max-width: 68ch;
+  margin: clamp(20px, 3vw, 30px) 0 0;
+  color: var(--muted);
+  font-size: clamp(15px, 1.7vw, 19px);
+  font-weight: 300;
+  line-height: 1.66;
+}
+
+/* ---- Long-form content ---- */
+
+.prose { max-width: 72ch; }
+
+.prose h2 {
+  margin: clamp(38px, 5vw, 58px) 0 14px;
+  padding-top: clamp(18px, 2.4vw, 26px);
+  border-top: 1px solid var(--line);
+  color: var(--text);
+  font-size: clamp(17px, 2vw, 23px);
+  font-weight: 500;
+  line-height: 1.28;
+}
+
+.prose h3 {
+  margin: clamp(24px, 3vw, 34px) 0 10px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.prose p {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: clamp(14px, 1.42vw, 16.5px);
+  font-weight: 300;
+  line-height: 1.76;
+}
+
+.prose strong { color: var(--text); font-weight: 500; }
+
+.prose ul,
+.prose ol { margin: 0 0 20px; padding-left: 20px; }
+
+.prose li {
+  margin: 0 0 9px;
+  color: var(--muted);
+  font-size: clamp(14px, 1.42vw, 16.5px);
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+.prose li::marker { color: var(--blue); }
+
+/* Key/value spec list — used for the Srm_p design parameters. */
+.spec-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1px;
+  margin: 22px 0 26px;
+  padding: 0;
+  list-style: none;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.spec-list li {
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--panel);
+}
+
+.spec-list .spec-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .20em;
+  text-transform: uppercase;
+}
+
+.spec-list .spec-value {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: clamp(13px, 1.4vw, 16px);
+  letter-spacing: .02em;
+}
+
+/* ---- Status / editorial note ---- */
+
+.status-note {
+  margin: 26px 0;
+  padding: 16px 18px;
+  border-left: 2px solid var(--blue-strong);
+  background: rgba(78, 170, 255, .06);
+  color: var(--muted);
+  font-size: clamp(13px, 1.35vw, 15px);
+  font-weight: 300;
+  line-height: 1.68;
+}
+
+.status-note p { margin: 0; color: inherit; font-size: inherit; }
+
+.status-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+/* ---- Numbered approach steps (a genuine sequence) ---- */
+
+.step-list {
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step-list > li {
+  position: relative;
+  padding: 0 0 0 46px;
+  margin: 0 0 26px;
+  counter-increment: step;
+}
+
+.step-list > li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 2px;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+}
+
+.step-list h3 { margin-top: 0; }
+.step-list p { margin-bottom: 0; }
+
+/* ---- Project cards on the home page ---- */
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+  gap: clamp(14px, 2vw, 22px);
+  margin: clamp(26px, 3.4vw, 38px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  padding: clamp(18px, 2.3vw, 26px);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  text-decoration: none;
+  transition: border-color .2s ease, transform .2s ease;
+}
+
+.project-card:hover,
+.project-card:focus-visible { border-color: var(--blue); transform: translateY(-2px); }
+
+.project-card-name {
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: clamp(15px, 1.7vw, 19px);
+  letter-spacing: .06em;
+}
+
+.project-card-caption {
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .20em;
+  text-transform: uppercase;
+}
+
+.project-card-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(13px, 1.35vw, 15px);
+  font-weight: 300;
+  line-height: 1.66;
+}
+
+.project-card-more {
+  margin-top: auto;
+  padding-top: 10px;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .20em;
+  text-transform: uppercase;
+}
+
+/* ---- Next / previous project footer ---- */
+
+.page-next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 26px;
+  margin: clamp(40px, 5vw, 64px) 0 0;
+  padding: clamp(20px, 2.6vw, 28px) 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.page-next a {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.page-next a:hover { color: var(--blue); }
+
+/* ---- Contact ---- */
+
+.contact-email {
+  display: inline-block;
+  margin: 8px 0 0;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--line);
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: clamp(14px, 1.9vw, 21px);
+  letter-spacing: .04em;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.contact-email:hover { border-bottom-color: var(--blue); }
+
+/* ---- Responsive ---- */
+
+@media (max-width: 760px) {
+  .site-nav-inner { gap: 10px 14px; padding-top: 12px; padding-bottom: 12px; }
+  .site-nav-list { width: 100%; margin-left: 0; gap: 8px 16px; }
+  .site-nav-link { font-size: 10px; letter-spacing: .12em; }
+  .page-shell { padding-bottom: 64px; }
+  .breadcrumbs { font-size: 9px; }
+  .spec-list { grid-template-columns: 1fr; }
+  .step-list > li { padding-left: 38px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card,
+  .site-nav-link { transition: none; }
+  .project-card:hover,
+  .project-card:focus-visible { transform: none; }
+}
+
+

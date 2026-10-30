@@ -1,0 +1,10 @@
+# Cognika — authentication include directory.
+# These files must never be served over HTTP: block everything here.
+# (Apache 2.4 syntax; CloudLinux/cPanel runs 2.4.)
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

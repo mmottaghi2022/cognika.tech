@@ -1,0 +1,475 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@300;400;500;600;700&display=swap');
+
+:root {
+  color-scheme: dark;
+  --bg: #03050a;
+  --text: #eef5ff;
+  --muted: #94a8c1;
+  --dim: #5f748d;
+  --blue: #9bd8ff;
+  --blue-strong: #4eaaff;
+  --line: rgba(167, 209, 255, .34);
+  --panel: rgba(3, 8, 17, .80);
+  --mono: 'DM Mono', 'SFMono-Regular', Consolas, monospace;
+  --sans: 'Manrope', Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+/* html keeps the base colour; body must stay transparent so the fixed
+   negative-z sky layers (.meteor-sky at -3, .cosmos at -2) paint above it. */
+html { min-width: 320px; background: var(--bg); scroll-behavior: smooth; }
+body { min-width: 320px; min-height: 100svh; margin: 0; color: var(--text); background: transparent; font-family: var(--sans); overflow-x: hidden; }
+button, a { font: inherit; }
+button { color: inherit; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-offset: 5px; }
+
+/* Photographic galaxy backdrop. Sized to fill the frame with the photo's own
+   black space; the image already contains black at its edges, so no colour
+   is added on top. */
+.backdrop { position: fixed; inset: 0; z-index: -4; pointer-events: none; overflow: hidden; background: var(--bg); }
+.backdrop picture { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.5); display: block; width: 100%; height: 100%;
+  /* Fade the photo's own edges to fully transparent so the rectangular trim
+     disappears into the black behind it. Alpha only — no colour is added.
+     Masking the picture (not the img) keeps the ellipse aligned with the
+     scaled box, and the ramp ends inside the frame so no step remains. */
+  -webkit-mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 18%, rgba(0, 0, 0, .88) 36%, rgba(0, 0, 0, .58) 52%, rgba(0, 0, 0, .28) 68%, rgba(0, 0, 0, .07) 84%, transparent 100%);
+  mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 18%, rgba(0, 0, 0, .88) 36%, rgba(0, 0, 0, .58) 52%, rgba(0, 0, 0, .28) 68%, rgba(0, 0, 0, .07) 84%, transparent 100%);
+}
+.backdrop img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; filter: brightness(.6); }
+/* Feather only the outer edge into pure black — no tint, no colour shift. */
+.backdrop::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 48%, transparent 0 46%, rgba(0, 0, 0, .28) 72%, rgba(0, 0, 0, .70) 92%, var(--bg) 100%); }
+
+.cosmos { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; background: transparent; }
+.cosmos::before { content: ''; position: absolute; inset: 0; opacity: .78; background: radial-gradient(ellipse at 50% 48%, transparent 0 24%, rgba(1, 3, 8, .22) 53%, #03050a 100%); z-index: 4; }
+/* With the photo backdrop behind, soften the vignette so the galaxy stays visible. */
+.has-backdrop .cosmos::before { opacity: .22; background: radial-gradient(ellipse at 50% 48%, transparent 0 34%, rgba(1, 3, 8, .08) 60%, rgba(3, 5, 10, .95) 94%); }
+/* The photo already carries its own black space and colour, so the CSS
+   nebula gradients and the blue-tinted vignette are switched off — they were
+   adding a blue cast that is not in the original image. */
+.has-backdrop .nebula { display: none; }
+/* With the photo present, the canvas already draws the stars, so the CSS
+   dot layers are redundant (and their blue #9dcfff/#b4d7ff tint would shift
+   the photo's colour). */
+.has-backdrop .star-layer { display: none; }
+.has-backdrop .cosmos::before { opacity: .16; background: radial-gradient(ellipse at 50% 48%, transparent 0 40%, rgba(0, 0, 0, .10) 70%, rgba(0, 0, 0, .55) 100%); }
+.nebula { position: absolute; left: 50%; top: 49%; width: min(112vw, 1400px); height: min(68vw, 760px); border-radius: 50%; transform: translate(-50%, -50%) rotate(-19deg); filter: blur(30px); opacity: .72; }
+.nebula-a { background: conic-gradient(from 24deg at 50% 50%, transparent 0deg, rgba(35, 84, 149, .02) 15deg, rgba(69, 131, 203, .27) 28deg, transparent 48deg, rgba(25, 72, 132, .13) 84deg, transparent 112deg, rgba(184, 134, 103, .18) 153deg, transparent 174deg, rgba(67, 116, 191, .26) 210deg, transparent 236deg, rgba(40, 77, 143, .2) 275deg, transparent 308deg, rgba(95, 153, 222, .17) 334deg, transparent 360deg); mask-image: radial-gradient(ellipse at center, #000 8%, transparent 69%); animation: galaxyDrift 95s linear infinite; }
+.nebula-b { width: min(98vw, 1190px); height: min(48vw, 560px); opacity: .8; filter: blur(22px); background: radial-gradient(ellipse at 49% 49%, rgba(3, 5, 10, .1) 0 15%, transparent 16% 24%, rgba(77, 140, 207, .22) 28%, transparent 42%), radial-gradient(ellipse at 58% 57%, rgba(208, 159, 111, .16), transparent 25%), radial-gradient(ellipse at 38% 42%, rgba(47, 105, 181, .23), transparent 35%); mask-image: radial-gradient(ellipse, #000 12%, transparent 70%); transform: translate(-50%, -50%) rotate(-19deg); }
+.star-layer { position: absolute; inset: -20%; background-repeat: repeat; }
+.star-layer-a { opacity: .75; background-image: radial-gradient(1px 1px at 30px 40px, #d7eaff 99%, transparent), radial-gradient(1px 1px at 147px 91px, #c2dfff 99%, transparent), radial-gradient(1.2px 1.2px at 233px 173px, #fff 99%, transparent), radial-gradient(1px 1px at 350px 65px, #b4d7ff 99%, transparent), radial-gradient(1px 1px at 421px 210px, #e4f1ff 99%, transparent), radial-gradient(1px 1px at 516px 125px, #fff 99%, transparent); background-size: 560px 290px; }
+.star-layer-b { opacity: .43; background-image: radial-gradient(1px 1px at 62px 80px, #fff 99%, transparent), radial-gradient(1px 1px at 190px 211px, #9dcfff 99%, transparent), radial-gradient(1.5px 1.5px at 307px 31px, #fff 99%, transparent), radial-gradient(1px 1px at 390px 146px, #d9ebff 99%, transparent); background-size: 430px 250px; transform: rotate(17deg); }
+.star-layer-c { opacity: .32; background-image: radial-gradient(1px 1px at 80px 60px, #fff 99%, transparent), radial-gradient(1px 1px at 244px 174px, #d7eaff 99%, transparent), radial-gradient(1px 1px at 366px 93px, #fff 99%, transparent); background-size: 510px 310px; transform: rotate(-9deg); }
+.meteor { position: absolute; width: 170px; height: 1px; border-radius: 100%; transform: rotate(-34deg); transform-origin: right center; opacity: 0; background: linear-gradient(90deg, transparent, rgba(113, 187, 255, .2) 52%, rgba(216, 239, 255, .95)); filter: drop-shadow(0 0 4px rgba(96, 174, 255, .65)); animation: meteorFall 8.8s ease-in infinite; }
+.meteor::after { content: ''; position: absolute; right: 0; top: -1.5px; width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px 3px rgba(139, 205, 255, .65); }
+.meteor-one { top: 23%; left: 14%; animation-delay: 1.6s; }
+.meteor-two { top: 12%; left: 83%; animation-delay: 4.2s; animation-duration: 10.5s; }
+.meteor-three { top: 72%; left: 6%; animation-delay: 6.4s; animation-duration: 12s; transform: rotate(-34deg) scale(.68); }
+.meteor-four { top: 83%; left: 93%; animation-delay: 2.7s; animation-duration: 11s; transform: rotate(-34deg) scale(.8); }
+
+.topbar, .footerbar { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding-inline: clamp(22px, 4vw, 62px); }
+.topbar { min-height: 96px; padding-top: 8px; }
+.brand { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 8px; text-decoration: none; color: var(--text); }
+/* Wordmark image. Height-driven so the 1700x300 aspect ratio is preserved.
+   `align-self` keeps the flex column from stretching it. */
+.brand-logo { display: block; width: auto; height: clamp(26px, 3.1vw, 40px); max-width: 100%; object-fit: contain; align-self: flex-start; }
+.brand-tagline { color: #9aafc7; font-family: var(--mono); font-size: 9px; letter-spacing: .30em; }
+.mobile-menu-toggle { display: none; }
+
+/* Two-column split: left = all writing, right = the orbit wheel. */
+/* Two columns: writing on the left, and the fixed navigator floats over the
+   right margin (sized by --nav-w so text never runs beneath it). */
+.universe { --orbit-lift: clamp(24px, 7vh, 72px); --nav-w: clamp(120px, 11vw, 210px); position: relative; z-index: 10; min-height: calc(100svh - 155px); display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: clamp(16px, 3vw, 56px); padding-inline: clamp(20px, 4vw, 66px); padding-right: calc(var(--nav-w) + clamp(20px, 4vw, 66px)); isolation: isolate; }
+
+.writing-pane { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 22px; min-width: 0; padding-inline-start: clamp(0px, 2vw, 34px); }
+
+/* Navigator column, fixed to the TOP-RIGHT of the viewport so it stays put
+   while the page scrolls. No rings, no hub — six nodes in a vertical line. */
+.orbit-stage {
+  position: fixed;
+  top: 96px;
+  right: clamp(22px, 4vw, 62px);
+  z-index: 30;
+  padding-bottom: 0;
+}
+
+.orbit-menu { position: relative; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: clamp(6px, 1vh, 10px); }
+/* Six circles + five gaps must fit between the header (96px) and footer, plus a
+   bottom margin. Solving 6d + 5·gap + 96 + 40 ≈ 100svh gives the size below.
+   Floor of 84px keeps icon + label readable on short screens. */
+.orbit-node { position: relative; width: clamp(84px, calc((100svh - 200px) / 6), 132px); height: clamp(84px, calc((100svh - 200px) / 6), 132px); aspect-ratio: 1; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid rgba(154, 201, 250, .39); border-radius: 50%; background: radial-gradient(circle at 50% 28%, rgba(22, 44, 68, .68), rgba(3, 9, 18, .9) 68%); box-shadow: inset 0 0 18px rgba(88, 149, 215, .055); cursor: pointer; transition: border-color .25s, box-shadow .25s, background .25s, scale .25s; text-align: center; padding: 10px 6px; }
+.orbit-node:hover, .orbit-node:focus-visible, .orbit-node.is-active { border-color: rgba(150, 214, 255, .92); background: radial-gradient(circle at 50% 27%, rgba(32, 77, 116, .77), rgba(3, 9, 18, .96) 70%); box-shadow: 0 0 30px rgba(54, 148, 235, .17), inset 0 0 20px rgba(88, 174, 244, .11); }
+.orbit-node.is-active { scale: 1.035; }
+/* Single vertical line, numbered 01 → 06 from top to bottom.
+   `order` re-sequences the DOM (which starts at "about") into menu order. */
+.node-about     { order: 1; }
+.node-eos       { order: 2; }
+.node-paia      { order: 3; }
+.node-srm       { order: 4; }
+.node-downloads { order: 5; }
+.node-contact   { order: 6; }
+
+/* Summary + detail text, sitting directly on the galaxy backdrop.
+   No border, no panel fill — just typography with a soft shadow for contrast. */
+.center-panel { position: relative; z-index: 3; width: 100%; max-width: 430px; display: flex; flex-direction: column; align-items: flex-start; padding: 0; text-align: left; border: 0; border-radius: 0; background: none; box-shadow: none; backdrop-filter: none; }
+.panel-content { display: flex; flex-direction: column; align-items: flex-start; width: 100%; margin-top: 20px; }
+.center-panel::before, .center-panel::after { content: none; }
+.panel-topline { position: static; display: flex; align-items: center; gap: 7px; width: 100%; color: #9fb6ce; font: 8px var(--mono); letter-spacing: .16em; white-space: nowrap; text-shadow: 0 1px 10px rgba(0, 0, 0, .85); }
+.status-dot { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: #8bd5ff; box-shadow: 0 0 8px rgba(88, 185, 255, .85); }
+.panel-index { margin-left: auto; opacity: .8; }
+.panel-symbol { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 16px; color: var(--blue); opacity: .95; filter: none; }
+.panel-symbol svg { width: 100%; height: 100%; }
+/* Favicon used as the Cognika mark: square art, so round it to sit like an icon. */
+.panel-symbol .panel-logo { display: block; width: 100%; height: 100%; border-radius: 9px; }
+.center-panel h1 { margin: 0 0 14px; font-size: clamp(2.1rem, 4.4vmin, 3.1rem); line-height: 1; font-weight: 400; letter-spacing: .05em; text-shadow: 0 2px 24px rgba(0, 0, 0, .9), 0 0 40px rgba(30, 110, 190, .35); }
+.panel-teaser { max-width: 330px; margin: 0; color: #c3d2e2; font-size: 13px; font-weight: 300; line-height: 1.75; text-shadow: 0 1px 12px rgba(0, 0, 0, .9); }
+
+/* Detail block for the hovered circle. Borderless. Once revealed it stays
+   put so the topic links and explore button remain clickable. */
+.hover-info { position: relative; left: auto; top: auto; z-index: 6; width: 100%; max-width: 560px; min-height: 210px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; backdrop-filter: none; transform: translateY(-8px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .22s ease, transform .22s ease, visibility .22s; }
+.hover-info.is-visible { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
+.hover-info-topline { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; color: #9fb6ce; font: 8px var(--mono); letter-spacing: .16em; white-space: nowrap; text-shadow: 0 1px 10px rgba(0, 0, 0, .85); }
+.hover-info-dot { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: #8bd5ff; box-shadow: 0 0 8px rgba(88, 185, 255, .85); }
+.hover-info-index { margin-left: auto; opacity: .8; }
+.hover-info-kicker { margin: 0 0 8px; color: #a8c1d8; font: 8px var(--mono); letter-spacing: .2em; line-height: 1.7; text-transform: uppercase; text-shadow: 0 1px 10px rgba(0, 0, 0, .9); }
+.hover-info-title { margin: 0; color: #f2f8ff; font-size: clamp(1.5rem, 2.6vmin, 1.95rem); font-weight: 400; line-height: 1.1; letter-spacing: .03em; text-shadow: 0 2px 22px rgba(0, 0, 0, .9), 0 0 34px rgba(30, 110, 190, .3); }
+.hover-info-rule { height: 1px; width: 84px; margin: 14px 0 14px; background: linear-gradient(90deg, rgba(135, 204, 255, .75), transparent); }
+.hover-info-description { margin: 0 0 16px; color: #c6d4e3; font-size: 12.5px; font-weight: 300; line-height: 1.75; text-shadow: 0 1px 12px rgba(0, 0, 0, .9); }
+.hover-info-topics { display: flex; flex-wrap: wrap; gap: 7px; }
+/* Text links rather than filled pills, so nothing reads as a "card". */
+.hover-info-topics button { border: 0; border-bottom: 1px solid rgba(141, 186, 235, .35); background: none; color: #a9c8e6; padding: 3px 0; font: 8.5px var(--mono); letter-spacing: .04em; cursor: pointer; text-shadow: 0 1px 10px rgba(0, 0, 0, .9); transition: color .2s, border-color .2s; }
+.hover-info-topics button span { margin-left: 4px; color: #7bc6ff; }
+.hover-info-topics button:hover, .hover-info-topics button:focus-visible { color: #fff; border-color: rgba(125, 199, 255, .9); }
+.hover-info-detail { min-height: 30px; margin: 12px 0 0; color: #9fb2c6; font-size: 11px; line-height: 1.55; text-shadow: 0 1px 10px rgba(0, 0, 0, .9); }
+.hover-info-action { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; padding: 6px 0; border: 0; border-bottom: 1px solid rgba(123, 190, 248, .45); background: none; color: #cfe6fb; font: 12px var(--mono); letter-spacing: .22em; cursor: pointer; text-shadow: 0 1px 10px rgba(0, 0, 0, .9); transition: color .2s, border-color .2s; }
+.hover-info-action span { font-size: 17px; transition: transform .2s; }
+.hover-info-action:hover, .hover-info-action:focus-visible { color: #fff; border-color: var(--blue); }
+.hover-info-action:hover span { transform: translate(3px, -2px); }
+/* `display: inline-flex` above overrides the [hidden] attribute — restore it. */
+.hover-info-action[hidden] { display: none; }
+
+/* Minimal mode (used by pat_ia): drop the eyebrow line, title, kicker and rule —
+   the panel is just the copy and the explore link. Topics/detail never show. */
+.hover-info.is-minimal .hover-info-topline,
+.hover-info.is-minimal .hover-info-kicker,
+.hover-info.is-minimal .hover-info-rule,
+.hover-info.is-minimal .hover-info-title { display: none; }
+.hover-info-topics,
+.hover-info-detail { display: none; }
+.hover-info.is-minimal .hover-info-description { margin: 0; font-size: 15px; line-height: 1.8; }
+/* pat_ia has no icon: drop the symbol box entirely. */
+.panel-symbol[hidden] { display: none !important; }
+
+/* pat_ia / e_os: the copy block sits in normal flow directly BELOW the title, so
+   it can never overlap it. No translate nudges — position follows the layout.
+   `width` is viewport-based so the two columns get the full reading width. */
+.hover-info.is-minimal {
+  position: relative;
+  left: auto;
+  top: auto;
+  flex: 0 0 auto;
+  width: min(calc(100vw - 300px), 1180px);
+  max-width: none;
+  min-height: 0;
+  margin-top: 18px;
+  transform: none;
+}
+.hover-info.is-minimal.is-visible { transform: none; }
+/* pat_ia: two fixed columns. A grid (not CSS multi-column) so the break point is
+   explicit and both columns start at the same height. */
+.hover-info.is-minimal .hover-info-description {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(28px, 3.6vw, 56px);
+  align-items: start;
+}
+/* Column 1 = intro + "The system is consisted of:" heading.
+   Column 2 = the module list + closing paragraphs. */
+.hover-info.is-minimal .hover-info-description > .col-left { grid-column: 1; }
+.hover-info.is-minimal .hover-info-description > .col-right { grid-column: 2; }
+.hover-info.is-minimal .hover-info-description > .col-right,
+.hover-info.is-minimal .hover-info-description > .col-left { display: flex; flex-direction: column; }
+.hover-info-description p:first-child { margin-top: 0; }
+/* Paragraph rhythm and the module list from the source document. */
+.hover-info-description p { margin: 0 0 12px; }
+.hover-info-description p:last-child { margin-bottom: 0; }
+.hover-info-list { margin: 6px 0 12px; padding-left: 18px; list-style: disc; }
+.hover-info-list li { margin: 2px 0; }
+/* pat_ia: the summary card and the detail block share the top area, so lift the
+   card up to clear the two-column text below it. */
+/* pat_ia / e_os: title + teaser lifted as one block, keeping the panel up top. */
+.writing-pane.is-minimal { justify-content: flex-start; }
+/* Teaser on one line: lift the 330px cap for the long-form panels. */
+.writing-pane.is-minimal .panel-teaser { max-width: none; white-space: nowrap; }
+/* Small side caption removed (it sits in .orbit-stage, not .writing-pane). */
+.orbit-stage .coordinate-two { display: none; }
+/* Title sits in normal flow, directly above the teaser. No positioning tricks. */
+.writing-pane.is-minimal .panel-content { transform: none; }
+.writing-pane.is-minimal .center-panel { position: static; }
+/* The default 430px cap wraps "Pat Intelligent Assistant" onto two lines. */
+.writing-pane.is-minimal .center-panel { max-width: none; }
+.writing-pane.is-minimal #panelTitle { white-space: nowrap; }
+/* Second eyebrow line gone for pat_ia. */
+.writing-pane.is-minimal .panel-topline { display: none; }
+
+/* Contact: the email address, styled like the explore link it replaces. */
+.hover-info-email {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 6px 0;
+  color: #cfe6fb;
+  font: 15px var(--mono);
+  letter-spacing: .08em;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(123, 190, 248, .45);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .9);
+  transition: color .2s, border-color .2s;
+}
+.hover-info-email:hover,
+.hover-info-email:focus-visible { color: #fff; border-color: var(--blue); }
+
+/* ---- Landing / first page ------------------------------------------------
+   Full-bleed cover behind the navigator. The circles stay on top and usable;
+   hovering one flies the wordmark into the header and shows that section's
+   line here. */
+/* The logo is centred in the free space LEFT of the navigator circles, sized to
+   fill that gap without ever reaching them. `--nav-w` is the circle column
+   width; the tray reserves it on the right so centring happens in the gap. */
+.landing {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  --nav-w: clamp(104px, 9vw, 210px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: var(--nav-w);
+  background: var(--bg);
+  transition: opacity .6s ease, visibility .6s ease;
+}
+.landing.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+.landing-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; padding: 0 clamp(16px, 3vw, 48px); }
+/* Fills most of the free width left of the circles, height capped so it stays
+   comfortably inside the viewport. Aspect ratio (1700:300) is preserved. */
+.landing-logo { display: block; height: auto; width: min(78%, calc(74vh * 5.667)); max-width: 100%; }
+.landing-copy { margin-top: clamp(18px, 3.2vh, 36px); min-height: 2.4em; }
+/* The copy clears out the moment the wordmark starts flying. */
+.landing.is-flying .landing-copy {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity .3s ease, visibility .3s ease, transform .3s ease;
+}
+.landing-line {
+  margin: 0;
+  color: #cfe2f6;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 21px);
+  line-height: 1.7;
+  letter-spacing: .02em;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, .85);
+}
+
+/* The wordmark is moved with a transform computed from the header position, so
+   it lands exactly on the header logo. */
+.landing-logo.is-flying {
+  transition: transform .85s cubic-bezier(.22, .61, .24, 1);
+  will-change: transform;
+}
+.landing-copy { transition: opacity .35s ease, transform .35s ease; }
+.landing-copy.is-swapping { opacity: 0; transform: translateY(8px); }
+
+/* The header wordmark fades in as the flying one lands on it. */
+.brand-logo { opacity: 1; transition: opacity .3s ease; }
+body.landing-active .brand-logo { opacity: 0; }
+body.landing-active .brand-tagline { opacity: 0; transition: opacity .3s ease; }
+
+/* Nothing from the left panel shows while the first page is up; it fades in
+   when the wordmark lands. */
+.writing-pane { transition: opacity .45s ease; }
+body.panel-hidden .writing-pane { opacity: 0; pointer-events: none; }
+body.panel-hidden .center-panel,
+body.panel-hidden .hover-info { visibility: hidden; }
+
+/* On phones the navigator moves to the BOTTOM of the viewport, so the landing
+   wordmark can sit in the upper third without ever colliding with it. */
+@media (max-width: 760px) {
+  /* Sized by width with the height derived from the intrinsic ratio, so the
+     element box always matches the drawn image — the flame overlay measures
+     that box, and any letterboxing would misalign it. */
+  .landing-logo {
+    width: min(84vw, 561px);
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: fill;
+    max-width: 84vw;
+  }
+  .landing-inner { padding: 0 10vw; }
+  .landing { align-items: flex-start; padding-top: 33svh; padding-bottom: 0; padding-right: 0; }
+  .landing-inner { padding: 0 8vw; width: 100%; }
+}
+
+/* ---- Blue flame on the trailing "A" of the wordmark ---------------------
+   A transparent canvas is positioned over the final glyph and paints layered
+   flame tongues in cyan/blue. Geometry is driven from JS so it tracks the logo
+   at any size or position. */
+.logo-flame { position: fixed; pointer-events: none; z-index: 25; mix-blend-mode: screen; opacity: .95; }
+
+.node-icon { display: grid; place-items: center; width: clamp(24px, 3.3vw, 36px); height: clamp(24px, 3.3vw, 36px); color: #d9efff; }
+.node-icon svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(133, 205, 255, .18)); }
+.icon-cognika { font-size: 35px; font-weight: 300; line-height: 1; letter-spacing: -.09em; }
+.icon-cognika span { display: inline-block; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; width: 29px; height: 29px; line-height: 25px; padding-right: 2px; text-align: center; }
+/* About uses the site favicon as its icon. */
+.icon-cognika img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.node-label { margin-top: 2px; color: #e4f3ff; font-size: clamp(10px, 1.28vmin, 12px); font-weight: 500; letter-spacing: .08em; }
+/* Captions are hidden everywhere — the icon + label carry the meaning. */
+.node-caption { display: none; }
+.stage-coordinate { position: absolute; color: rgba(133, 164, 195, .51); font: 7px/1.8 var(--mono); letter-spacing: .17em; }
+/* Lives in the left writing pane now. */
+.coordinate-one { left: 0; bottom: 2%; }
+/* Sits beside the node column, aligned to the lift so it stays with the column. */
+.coordinate-two { right: calc(100% + 22px); bottom: calc(var(--orbit-lift) + 2%); text-align: right; white-space: nowrap; }
+
+/* The card occupies the left margin, so fade the left coordinate readout
+   out of the way while it is open. */
+body.card-open .coordinate-one { opacity: 0; }
+.stage-coordinate { transition: opacity .22s ease; }
+
+.footerbar { min-height: 59px; color: #849db7; font: 8px var(--mono); letter-spacing: .2em; }
+.footer-note, .footer-right { display: flex; align-items: center; gap: 18px; }
+.footer-line { display: block; width: 32px; height: 1px; background: #b0cee8; opacity: .8; }
+.footer-status { color: #657d96; }
+.footer-orb { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid #b9d9f8; border-radius: 50%; }
+.footer-orb span { width: 4px; height: 4px; border-radius: 50%; background: #c5e4ff; box-shadow: 0 0 8px #75bcff; }
+
+.detail-dialog { width: min(520px, calc(100% - 32px)); padding: 38px; color: var(--text); border: 1px solid rgba(139, 197, 250, .35); border-radius: 18px; background: radial-gradient(ellipse at top, rgba(22, 51, 83, .96), rgba(3, 7, 14, .98) 66%); box-shadow: 0 20px 100px rgba(0, 0, 0, .7), 0 0 60px rgba(50, 130, 220, .16); }
+.detail-dialog::backdrop { background: rgba(0, 2, 8, .78); backdrop-filter: blur(7px); }
+.dialog-close { position: absolute; top: 12px; right: 16px; border: 0; color: #9ebbd9; background: transparent; font-size: 28px; cursor: pointer; }
+.dialog-eyebrow { color: #7eacda; font: 10px var(--mono); letter-spacing: .2em; }
+.detail-dialog h2 { margin: 18px 0 12px; font-size: clamp(28px, 5vw, 40px); font-weight: 400; }
+.detail-dialog #dialogDescription { color: #c0d0e0; line-height: 1.8; }
+.dialog-rule { height: 1px; margin: 24px 0; background: linear-gradient(90deg, rgba(135, 204, 255, .65), transparent); }
+.dialog-note { color: #7f95ad; font-size: 12px; line-height: 1.8; }
+
+@keyframes galaxyDrift { to { transform: translate(-50%, -50%) rotate(341deg); } }
+@keyframes meteorFall {
+  0%, 62% { opacity: 0; translate: 0 0; }
+  64% { opacity: .95; }
+  69% { opacity: 0; translate: -270px 175px; }
+  100% { opacity: 0; translate: -270px 175px; }
+}
+
+.meteor-sky { position: fixed; inset: 0; z-index: -3; display: block; width: 100%; height: 100%; pointer-events: none; background: transparent; }
+/* The canvas draws the streaks, so the CSS .meteor spans must never render.
+   Hidden unconditionally — not gated on the JS-added .sky-active class — so
+   the large 170px streaks cannot appear if the canvas fails to initialise. */
+.meteor-sky ~ * .meteor,
+.cosmos > .meteor { display: none; }
+html.sky-active .cosmos { background: transparent; }
+html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%, transparent 0 30%, rgba(1, 3, 8, .18) 58%, #03050a 100%); }
+
+/* Tablet / small laptop: keep the split, just tighten the typography. */
+@media (min-width: 761px) and (max-width: 1180px) {
+  .universe { gap: clamp(12px, 2vw, 32px); padding-inline: clamp(16px, 3vw, 40px); }
+  .center-panel, .hover-info { padding: 20px 20px 18px; }
+  .hover-info-description { font-size: 11px; }
+  .center-panel h1 { font-size: clamp(1.7rem, 3.4vmin, 2.3rem); }
+}
+
+@media (max-width: 760px) {
+  .topbar { min-height: 78px; padding-inline: 20px; }
+  .brand-logo { height: 24px; }
+  .brand-tagline { font-size: 7px; letter-spacing: .19em; }
+  .mobile-menu-toggle { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 40px; height: 40px; padding: 8px; border: 1px solid rgba(152, 197, 241, .25); border-radius: 50%; background: rgba(6, 14, 26, .65); }
+  .mobile-menu-toggle span { height: 1px; width: 100%; background: #bddcf8; }
+  /* Single column: writing on top, nav docked top-right. */
+  .universe { grid-template-columns: minmax(0, 1fr); min-height: calc(100svh - 124px); gap: 20px; padding: 12px clamp(14px, 4vw, 24px) 22px; }
+  .writing-pane { order: 1; }
+  /* Navigator stays a vertical column, pinned to the BOTTOM-RIGHT of the
+     viewport on phones. */
+  .orbit-stage {
+    order: 2;
+    position: fixed;
+    top: auto;
+    bottom: 14px;
+    right: 10px;
+    left: auto;
+    width: auto;
+    max-width: none;
+    justify-self: auto;
+    align-self: auto;
+    margin: 0;
+    padding-bottom: 0;
+    z-index: 30;
+  }
+  .orbit-menu { flex-direction: column; align-items: flex-end; gap: 4px; }
+  /* Circles shrink so six of them plus gaps clear the phone's height. */
+  .orbit-node { width: clamp(36px, 8.4vh, 50px); height: clamp(36px, 8.4vh, 50px); padding: 3px 2px; gap: 2px; }
+  .node-icon { width: 15px; height: 15px; }
+  .icon-cognika { font-size: 17px; }
+  .icon-cognika span { width: 14px; height: 14px; line-height: 11px; }
+  .node-label { font-size: 6px; letter-spacing: 0; }
+  .node-caption { display: none; }
+  .coordinate-one { display: none; }
+  .center-panel, .hover-info { max-width: none; }
+  /* The desktop width formula leaves only 200px here — use the full column. */
+  .hover-info.is-minimal { width: 100%; margin-top: 12px; }
+  .center-panel { padding: 20px 20px 20px; }
+  .panel-content { margin-top: 20px; }
+  .center-panel h1 { font-size: 1.45rem; }
+  .panel-teaser { font-size: 11px; }
+  .hover-info { padding: 18px 20px 16px; }
+  .hover-info-title { font-size: 1.1rem; }
+  .hover-info-description { font-size: 12px; }
+  /* Long-form copy must be ONE column on phones — two narrow columns ran to
+     thousands of pixels tall. */
+  .hover-info.is-minimal .hover-info-description {
+    display: block;
+    columns: 1;
+    grid-template-columns: none;
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .hover-info.is-minimal .hover-info-description > .col-left,
+  .hover-info.is-minimal .hover-info-description > .col-right { display: block; }
+  .panel-topline { gap: 5px; font-size: 6px; letter-spacing: .08em; }
+  .panel-symbol { width: 27px; height: 27px; margin-bottom: 10px; }
+  /* Smaller circles so the whole column clears the top bar. */
+  .orbit-node { width: clamp(48px, 6.4vh, 64px); height: clamp(48px, 6.4vh, 64px); gap: 3px; padding: 4px 3px; }
+  .node-icon { width: 20px; height: 20px; }
+  .icon-cognika { font-size: 22px; }
+  .icon-cognika span { width: 19px; height: 19px; line-height: 16px; border-width: 1.5px; }
+  .node-label { font-size: 7px; }
+  .node-caption { font-size: 4.5px; letter-spacing: .05em; }
+  .coordinate-one, .coordinate-two { display: none; }
+  /* Leave room for the fixed navigator so text never runs underneath it. */
+  .writing-pane { padding-inline-end: 74px; }
+  .footerbar { min-height: 46px; padding-inline: 20px; font-size: 7px; letter-spacing: .12em; }
+  .footer-note, .footer-right { gap: 8px; }
+  .footer-line { width: 18px; }
+  .footer-status { display: none; }
+}
+
+@media (max-width: 460px) {
+  .universe { min-height: auto; display: block; padding: 6px 0 28px; }
+  /* Keep the vertical column docked bottom-right; only the sizing changes. */
+  .orbit-stage { width: auto; aspect-ratio: auto; display: block; padding: 0; }
+  .center-panel { padding: 22px 60px 22px 20px; }
+  .panel-symbol { width: 34px; height: 34px; margin-bottom: 12px; }
+  .center-panel h1 { font-size: 1.35rem; margin-bottom: 10px; }
+  .panel-teaser { max-width: none; font-size: 10.5px; line-height: 1.6; }
+  .orbit-menu { position: relative; inset: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .orbit-node, .node-about, .node-eos, .node-paia, .node-srm, .node-downloads, .node-contact { position: relative; inset: auto; width: clamp(34px, 8vh, 46px); max-width: 46px; height: auto; aspect-ratio: 1; justify-self: auto; transform: none; padding: 3px 2px; gap: 2px; }
+  .orbit-node.is-active { scale: 1.02; }
+  .node-icon { width: 14px; height: 14px; }
+  .icon-cognika { font-size: 16px; }
+  .icon-cognika span { width: 13px; height: 13px; line-height: 10px; }
+  .node-label { font-size: 5.5px; }
+  .node-caption { display: none; }
+  .hover-info.is-minimal .hover-info-description { font-size: 11.5px; }
+  .writing-pane { padding-inline-end: 66px; }
+  .footerbar { margin-top: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
