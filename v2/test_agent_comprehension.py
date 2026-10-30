@@ -41,8 +41,9 @@ for p in PAGES:
     txt = visible_text(ROOT + p)
     types = []
     for d in jsonld(ROOT + p):
-        if isinstance(d, dict) and "@type" in d:
-            types.append(d["@type"])
+        for node in d.get("@graph", [d]):
+            if isinstance(node, dict) and "@type" in node:
+                types.append(node["@type"])
     print(f"  {p:22} words={len(txt.split()):>4}  jsonld={types or 'NONE'}")
 
 print("\n=== 2. CAN AN AGENT ANSWER THESE FROM HTML ALONE? ===")
