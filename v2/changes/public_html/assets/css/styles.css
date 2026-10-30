@@ -111,11 +111,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .topbar, .footerbar { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding-inline: clamp(22px, 4vw, 62px); }
 .topbar { min-height: 96px; padding-top: 8px; }
 .brand { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 8px; text-decoration: none; color: var(--text); }
-/* <picture> wraps the wordmark for responsive sources. Inside the header's flex
-   column it must not add a box of its own, or the logo's height and alignment
-   change. The landing logo is NOT included here: .landing-inner centres its
-   children, and collapsing the <picture> box breaks that centring. */
-.brand picture { display: contents; }
+/* <picture> wraps the wordmark for responsive sources. In BOTH places it must
+   not introduce a box of its own. The header is a flex column where an extra
+   block would change the logo's height and alignment; .landing-inner centres
+   its children with align-items, and a block-level <picture> becomes the flex
+   item instead of the <img>, so the wordmark was left-aligned instead of
+   centred. `display: contents` removes the wrapper from layout entirely, which
+   restores the exact original structure. */
+.brand picture,
+.landing-inner picture { display: contents; }
 /* Wordmark image. Height-driven so the 1700x300 aspect ratio is preserved.
    `align-self` keeps the flex column from stretching it. */
 .brand-logo { display: block; width: auto; height: clamp(26px, 3.1vw, 40px); max-width: 100%; object-fit: contain; align-self: flex-start; }
