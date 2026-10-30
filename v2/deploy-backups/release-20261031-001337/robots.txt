@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /about/
+Allow: /projects/
+Allow: /e-os/
+Allow: /pat-ia/
+Allow: /srm-p/
+Allow: /contact/
+
+# Auth pages must not be indexed. They already carry
+# <meta name="robots" content="noindex, nofollow">, which is the
+# authoritative signal; this is defence in depth.
+Disallow: /login.php
+Disallow: /dashboard.php
+Disallow: /inc/
+
+# AI crawler policy: search indexing and user-triggered retrieval allowed;
+# model training not granted. See v2/docs/website/agent_policy.md.
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+Sitemap: https://cognika.tech/sitemap.xml
