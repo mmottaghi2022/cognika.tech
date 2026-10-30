@@ -269,7 +269,26 @@
     if (event.key === 'Escape' && hoverInfo.classList.contains('is-visible')) hideCard();
   });
 
+  // "Explore section" navigates to the real page for the active section
+  // instead of opening a dialog. A dialog would put the content outside the
+  // page it belongs to; each section now has its own crawlable URL, so the
+  // button is a plain navigation to that URL.
+  const SECTION_URLS = {
+    about: '/about/',
+    eos: '/e-os/',
+    paia: '/pat-ia/',
+    srm: '/srm-p/',
+    downloads: '/projects/',
+    contact: '/contact/'
+  };
+
   hoverAction.addEventListener('click', () => {
+    const target = SECTION_URLS[activeKey];
+    if (target) {
+      window.location.href = target;
+      return;
+    }
+    // Fallback for any section without a page: keep the old dialog behaviour.
     const data = sections[activeKey];
     dialogEyebrow.textContent = data.eyebrow;
     dialogTitle.textContent = data.title;
