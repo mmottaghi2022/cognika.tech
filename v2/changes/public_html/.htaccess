@@ -1,0 +1,106 @@
+# =============================================================================
+# Cognika — root .htaccess
+# =============================================================================
+# Purpose: enforce HTTPS and canonicalise the hostname onto the apex domain.
+#
+# This file is NEW. There was no root .htaccess before, so nothing is being
+# overwritten. public_html/inc/.htaccess is untouched and still denies direct
+# access to the auth include directory.
+#
+# Host: LiteSpeed on cPanel/CloudLinux, which reads Apache-format .htaccess and
+# supports mod_rewrite. Rules are wrapped in <IfModule> so a missing module
+# degrades to "no rule applied" instead of a 500 error.
+#
+# WHY THE HTTPS TEST IS NOT JUST %{HTTPS}:
+# TLS is terminated by Cloudflare at the edge. The origin receives a plain
+# HTTP request with the header X-Forwarded-Proto: https. If we tested only
+# %{HTTPS} we would see "off" at the origin, redirect to https, Cloudflare
+# would proxy it back to the origin over HTTP, and the site would loop
+# infinitely. Both signals are therefore tested.
+# =============================================================================
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # ---------------------------------------------------------------------------
+  # 1. www -> apex, 301 permanent.
+  #    Only the www prefix is special-cased. Any other alias that is not the
+  #    canonical host is also folded onto the apex by rule 2.
+  # ---------------------------------------------------------------------------
+  RewriteCond %{HTTP_HOST} ^www\.cognika\.tech$ [NC]
+  RewriteRule ^ https://cognika.tech%{REQUEST_URI} [R=301,L]
+
+  # ---------------------------------------------------------------------------
+  # 2. Force HTTPS. Skipped when Cloudflare already served the client over
+  #    HTTPS, which is signalled by X-Forwarded-Proto at the origin.
+  # ---------------------------------------------------------------------------
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteRule ^ https://cognika.tech%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 3. Baseline security headers.
+#    These do not touch authentication. They only add response headers, and
+#    PHP is free to override any of them from inc/auth.php, which already sets
+#    its own X-Content-Type-Options, Referrer-Policy, X-Frame-Options and
+#    Permissions-Policy on auth pages.
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  # Do NOT advertise the server version.
+  Header unset X-Powered-By
+
+  # Stop browsers guessing content types.
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Send only the origin, not the full path, to third parties.
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Deny framing of the public site.
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # NOTE: Strict-Transport-Security is deliberately NOT set here.
+  # HSTS is Phase 4 in v2/plan.md and must not be enabled until HTTPS has been
+  # proven on every subdomain. mail.cognika.tech, cpanel.cognika.tech and
+  # py-test.cognika.tech are served by the same origin and are not guaranteed
+  # HTTPS-only; enabling HSTS now could make them unreachable.
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 4. Directory listings off.
+#    py-test.cognika.tech currently returns "Index of /" for its empty docroot,
+#    which discloses file names. This closes that on this webroot.
+# -----------------------------------------------------------------------------
+Options -Indexes
+
+# -----------------------------------------------------------------------------
+# 5. Directory index order. index.html is the public landing page; the PHP
+#    entry points are reached by explicit filename (/login.php, /dashboard.php).
+# -----------------------------------------------------------------------------
+DirectoryIndex index.html index.php
+
+# -----------------------------------------------------------------------------
+# 6. Protect dotfiles and backup/editor leftovers from being fetched.
+#    .htaccess and .htpasswd are already denied by the server, but stray
+#    editor and archive files are not.
+# -----------------------------------------------------------------------------
+<FilesMatch "(^\.|~$|\.(bak|old|orig|save|swp|swo|dist|sql|log|ini|sh)$)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# -----------------------------------------------------------------------------
+# 7. PHP settings that do not change behaviour of existing code.
+#    display_errors is off so a future warning can never leak a path or a
+#    variable value into a public response. Logging stays on for diagnosis.
+# -----------------------------------------------------------------------------
+<IfModule mod_php.c>
+  php_flag display_errors off
+  php_flag log_errors on
+</IfModule>

@@ -1,0 +1,219 @@
+/* Cognika — sign-in page.
+   Reuses the site's design tokens and backdrop layers from styles.css so the
+   page reads as part of the same system rather than a bolted-on form.
+
+   This page loads ONLY login.css (not styles.css), so the @font-face rules
+   are declared here rather than inherited. They mirror the declarations in
+   styles.css exactly: same files, same variable range, same font-display.
+   The previous Google Fonts @import was removed because it blocked rendering
+   on a third-party origin.
+ */
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 200 800;          /* variable range */
+  font-display: swap;
+  src: url('../fonts/manrope-var.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/dm-mono-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'DM Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/dm-mono-500.woff2') format('woff2');
+}
+
+:root {
+  color-scheme: dark;
+  --bg: #03050a;
+  --text: #eef5ff;
+  --muted: #94a8c1;
+  --dim: #5f748d;
+  --blue: #9bd8ff;
+  --blue-strong: #4eaaff;
+  --line: rgba(167, 209, 255, .34);
+  --panel: rgba(3, 8, 17, .80);
+  --mono: 'DM Mono', 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --sans: 'Manrope', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { min-width: 320px; background: var(--bg); }
+body {
+  min-width: 320px;
+  min-height: 100svh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  background: transparent;
+  font-family: var(--sans);
+  overflow-x: hidden;
+}
+
+/* Galaxy backdrop, same layers and treatment as the homepage. */
+.backdrop { position: fixed; inset: 0; z-index: -4; pointer-events: none; overflow: hidden; background: var(--bg); }
+.backdrop picture {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.5);
+  display: block; width: 100%; height: 100%;
+  -webkit-mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 18%, rgba(0,0,0,.88) 36%, rgba(0,0,0,.58) 52%, rgba(0,0,0,.28) 68%, rgba(0,0,0,.07) 84%, transparent 100%);
+  mask-image: radial-gradient(ellipse 74% 74% at 50% 50%, #000 18%, rgba(0,0,0,.88) 36%, rgba(0,0,0,.58) 52%, rgba(0,0,0,.28) 68%, rgba(0,0,0,.07) 84%, transparent 100%);
+}
+.backdrop img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.backdrop::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 48%, transparent 0 46%, rgba(0,0,0,.28) 72%, rgba(0,0,0,.70) 92%, var(--bg) 100%); }
+
+/* Top bar — brand lockup mirrors index.html */
+.auth-topbar {
+  position: relative; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 96px; padding: 8px clamp(22px, 4vw, 62px) 0;
+}
+.brand { display: inline-flex; flex-direction: column; gap: 6px; text-decoration: none; }
+.brand-name { color: var(--text); font-size: clamp(1.35rem, 2.05vw, 2rem); font-weight: 400; letter-spacing: .34em; line-height: 1; }
+.brand-period { color: var(--blue); }
+.brand-tagline { color: #9aafc7; font-family: var(--mono); font-size: 9px; letter-spacing: .30em; }
+.auth-topbar-meta { display: flex; align-items: center; gap: 13px; color: #9eb2ca; font: 9px var(--mono); letter-spacing: .22em; }
+.auth-topbar-meta i { display: block; width: 3px; height: 3px; border-radius: 50%; background: #6e91b7; }
+
+/* Centred panel. Borderless like .center-panel on the homepage; the form
+   fields carry the only borders, so nothing reads as a floating "card". */
+.auth-main {
+  position: relative; z-index: 4;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 6vh, 72px) clamp(18px, 5vw, 40px);
+}
+.auth-panel { width: 100%; max-width: 430px; }
+
+.auth-topline {
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 26px;
+  color: #9fb6ce; font: 8px var(--mono); letter-spacing: .16em;
+  text-shadow: 0 1px 10px rgba(0,0,0,.85);
+}
+.status-dot { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: #8bd5ff; box-shadow: 0 0 8px rgba(88,185,255,.85); }
+.auth-index { margin-left: auto; opacity: .8; }
+
+.auth-mark { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 16px; color: var(--blue); }
+.auth-mark .panel-logo { display: block; width: 100%; height: 100%; border-radius: 9px; }
+
+.auth-panel h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2.1rem, 4.4vmin, 2.6rem);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: .05em;
+  text-shadow: 0 2px 24px rgba(0,0,0,.9), 0 0 40px rgba(30,110,190,.35);
+}
+.auth-lead { max-width: 330px; margin: 0 0 30px; color: #c3d2e2; font-size: 13px; font-weight: 300; line-height: 1.75; text-shadow: 0 1px 12px rgba(0,0,0,.9); }
+
+/* Messages */
+.auth-message {
+  margin: 0 0 22px;
+  padding: 12px 14px;
+  border-left: 2px solid rgba(255, 148, 148, .8);
+  background: rgba(60, 12, 18, .34);
+  color: #ffd9d9;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.auth-message.is-notice { border-left-color: rgba(140, 205, 255, .85); background: rgba(10, 32, 54, .40); color: #d5eaff; }
+
+/* Fields */
+.auth-form { display: flex; flex-direction: column; gap: 20px; }
+.field { display: flex; flex-direction: column; gap: 9px; }
+.field label { color: #9fb6ce; font: 9px var(--mono); letter-spacing: .18em; text-transform: uppercase; }
+.field input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(154, 201, 250, .26);
+  border-radius: 2px;
+  background: rgba(6, 14, 26, .72);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: .01em;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.field input::placeholder { color: #5f748d; }
+.field input:hover { border-color: rgba(154, 201, 250, .42); }
+.field input:focus {
+  outline: none;
+  border-color: rgba(150, 214, 255, .92);
+  background: rgba(8, 20, 36, .82);
+  box-shadow: 0 0 24px rgba(54, 148, 235, .16);
+}
+
+/* Submit — matches .hover-info-action's underline idiom, but filled enough
+   to read as the primary action of the page. */
+.auth-submit {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 6px;
+  padding: 9px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(123, 190, 248, .45);
+  background: none;
+  color: #cfe6fb;
+  font: 9px var(--mono);
+  letter-spacing: .18em;
+  cursor: pointer;
+  align-self: flex-start;
+  text-shadow: 0 1px 10px rgba(0,0,0,.9);
+  transition: color .2s, border-color .2s;
+}
+.auth-submit span { font-size: 13px; transition: transform .2s; }
+.auth-submit:hover, .auth-submit:focus-visible { color: #fff; border-color: var(--blue); }
+.auth-submit:hover span { transform: translate(3px, -2px); }
+
+.auth-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin-top: 26px;
+  color: var(--dim);
+  font: 8px var(--mono);
+  letter-spacing: .18em;
+}
+.auth-foot a { color: #a9c8e6; text-decoration: none; border-bottom: 1px solid rgba(141,186,235,.35); }
+.auth-foot a:hover, .auth-foot a:focus-visible { color: #fff; border-color: var(--blue); }
+
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.auth-footer {
+  position: relative; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 59px;
+  padding-inline: clamp(22px, 4vw, 62px);
+  color: #849db7;
+  font: 8px var(--mono);
+  letter-spacing: .2em;
+}
+.auth-footer span { display: flex; align-items: center; gap: 18px; }
+.auth-footer .footer-line { display: block; width: 26px; height: 1px; background: rgba(133, 164, 195, .5); }
+
+@media (max-width: 640px) {
+  .auth-topbar { min-height: 78px; padding-inline: 20px; }
+  .brand-name { font-size: 1.3rem; letter-spacing: .25em; }
+  .brand-tagline { font-size: 7px; letter-spacing: .19em; }
+  .auth-topbar-meta { display: none; }
+  .auth-panel { max-width: none; }
+  .auth-panel h1 { font-size: 1.9rem; }
+  .auth-lead { font-size: 12px; }
+  .auth-footer { padding-inline: 20px; font-size: 7px; letter-spacing: .12em; }
+  .auth-footer .footer-line { width: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+

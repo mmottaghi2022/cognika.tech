@@ -1,0 +1,84 @@
+# Cognika — crawler access policy.
+#
+# Two separate decisions are encoded here:
+#   1. SEARCH / retrieval crawlers -> allowed. They surface pages to people.
+#   2. TRAINING crawlers           -> blocked. Policy: do not grant model
+#                                     training rights by default.
+#
+# The search crawlers are named explicitly rather than left to the wildcard,
+# so the intent is visible and survives edits to the default group.
+# Crawler purposes verified against OpenAI, Anthropic and Perplexity docs.
+
+# ---------------------------------------------------------------------------
+# DEFAULT: allow public content, deny private entry points.
+# ---------------------------------------------------------------------------
+User-agent: *
+Allow: /about/
+Allow: /projects/
+Allow: /e-os/
+Allow: /pat-ia/
+Allow: /srm-p/
+Allow: /contact/
+
+# Auth pages must not be indexed. They already send
+# <meta name="robots" content="noindex, nofollow">, which is the
+# authoritative signal; this is defence in depth.
+Disallow: /login.php
+Disallow: /dashboard.php
+Disallow: /inc/
+
+# ---------------------------------------------------------------------------
+# SEARCH / INDEXING crawlers — explicitly allowed.
+# These index pages so they can appear in search results. They are not used
+# to train foundation models.
+# ---------------------------------------------------------------------------
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /login.php
+Disallow: /dashboard.php
+Disallow: /inc/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /login.php
+Disallow: /dashboard.php
+Disallow: /inc/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /login.php
+Disallow: /dashboard.php
+Disallow: /inc/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /login.php
+Disallow: /dashboard.php
+Disallow: /inc/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /login.php
+Disallow: /dashboard.php
+Disallow: /inc/
+
+# ---------------------------------------------------------------------------
+# TRAINING crawlers — blocked.
+#   GPTBot            OpenAI foundation-model training
+#   Google-Extended   Google Gemini training (does not affect Google Search)
+#   ClaudeBot         Anthropic model training
+#   CCBot             Common Crawl, a corpus widely used for model training
+# ---------------------------------------------------------------------------
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+Sitemap: https://cognika.tech/sitemap.xml
