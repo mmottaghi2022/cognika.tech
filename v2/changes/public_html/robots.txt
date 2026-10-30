@@ -2,7 +2,7 @@ User-agent: *
 Allow: /about/
 Allow: /projects/
 Allow: /e-os/
-Allow: /pa-ia/
+Allow: /pat-ia/
 Allow: /srm-p/
 Allow: /contact/
 

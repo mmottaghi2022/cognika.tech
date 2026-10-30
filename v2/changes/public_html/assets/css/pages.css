@@ -1,3 +1,19 @@
+/* ---- Landing-page orbit nodes as links ----
+ * The six orbit nodes changed from <button> to <a href> so navigation works
+ * without JavaScript. .orbit-node in styles.css already sets display:flex,
+ * the circular box, colours and hover/active states, so all this needs to do
+ * is remove the default link underline and colour inheritance.
+ * No colour, type, size or spacing is changed here.
+ */
+
+a.orbit-node {
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a.orbit-node:hover { color: inherit; text-decoration: none; }
+
 /* Cognika v2 — content pages.
  *
  * Shared styling for the crawlable sub-pages (/about/, /e-os/, /pa-ia/,

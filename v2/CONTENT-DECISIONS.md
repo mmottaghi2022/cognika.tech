@@ -1,96 +1,106 @@
-# Content decisions requiring owner confirmation
+# Content decisions — RESOLVED 2026-10-30
 
-From `docs/website/CONTENT_SPECIFICATION.md` § "Content still requiring owner
-confirmation", plus items I hit while implementing. **Nothing below was
-invented** — where the spec did not supply a fact, I left a placeholder and
-flagged it here rather than filling it in.
+Owner decisions received. Status of each item below.
 
-## 1. 🔴 Official contact email — BLOCKING for `/contact/`
+## ✅ 1. Cognika Design Skill — resolved
 
-The spec says: *"Use only the existing verified Cognika email address and
-contact channels. Do not invent telephone numbers, office addresses or social
-media accounts."*
+Owner instruction: *"Accept the existing website's design tokens as sufficient
+for this implementation. Do not install a substitute skill."*
 
-**No verified email exists in this repository.** I searched every `.md`,
-`.html`, `.php`, `.txt`, and `.sh` file. The only `@cognika.tech` address found
-anywhere is `cognikaftp@cognika.tech`, which is an FTP account — not a public
-contact address.
+`agent_policy.md` names a "Cognika Design Skill" as mandatory, but it is **not
+installed** on this system (verified: searched `~/.agents/skills`, all `SKILL.md`
+files, retired skills, and the project tree). Per the owner decision, the live
+site's own `:root` tokens in `assets/css/styles.css` are authoritative:
+`--bg #03050a`, `--text #eef5ff`, `--muted #94a8c1`, `--blue #9bd8ff`,
+`--blue-strong #4eaaff`, `--mono 'DM Mono'`, `--sans 'Manrope'`.
+**`styles.css` is byte-identical to production**, so the visual identity is
+provably unchanged.
 
-**What I shipped:** `/contact/` currently contains a placeholder link to
-`info@cognika.tech`, clearly marked with an HTML comment:
+## ✅ 2. Contact page — approved as shipped
 
-```html
-<!-- OWNER CONFIRMATION REQUIRED: this address is not yet verified.
-     See v2/CONTENT-DECISIONS.md item 1. Replace or remove before deploy. -->
+`/contact/` keeps the `info@cognika.tech` mailto link. The "OWNER CONFIRMATION
+REQUIRED" HTML comment was removed now that it is approved.
+
+## ✅ 3. Projects page — keep as central overview
+
+`/projects/` remains the overview of the three projects. **All three cards link
+to their individual pages** (verified: `/e-os/`, `/pat-ia/`, `/srm-p/` all 200).
+
+## ✅ 4. pat_ia naming — renamed to /pat-ia/
+
+| Aspect | Value |
+|---|---|
+| Visible name | **pat_ia** |
+| Canonical URL | **`/pat-ia/`** |
+| Directory | `pat-ia/` (renamed from `pa-ia/` via `git mv`) |
+
+All 14 references updated: nav on 7 pages, in-page links, canonical URL,
+sitemap entry, robots.txt `Allow:` line.
+**No redirect added** — `pa-ia` was never deployed, so no public URL exists to
+preserve. Verified: zero `pa-ia` strings remain in the tree.
+
+## ✅ 5. Verification — split by environment
+
+Two separate suites, results reported per environment:
+
+| Suite | Tool | What it proves |
+|---|---|---|
+| **Local HTML** | Python `http.server` | Static routing, link integrity, HTML content |
+| **Local PHP** | **PHP 8.5.12 built-in server** | Auth flow, CSRF, session handling |
+| **Real browser** | Chrome headless + CDP | Navigator click-through, visual rendering |
+
+⚠️ **PHP authentication was tested on a PHP 8.5.12 runtime, not on Python's
+`http.server`.** `http.server` cannot execute PHP and would return raw source; it
+was never used to make any auth claim.
+
+⚠️ **Still NOT tested: LiteSpeed.** Chrome and PHP built-in are local only.
+`.htaccess` behaviour, HTTPS redirects and LiteSpeed-specific routing remain
+unverified until this tree is on a staging vhost.
+
+### Auth test results (PHP 8.5.12)
+
+```
+1. login.php renders                200, CSRF token present, title COGNIKA — Sign In
+2. dashboard.php unauthenticated    redirected to login.php?timeout=1
+3. wrong password                   stays on login (not authenticated)
+4. correct password                 landed on dashboard.php
+5. dashboard.php with session       200, shows user, title COGNIKA — Console
+6. raw PHP source leaked            0 responses
 ```
 
-**Needed from you (pick one):**
-- **(a)** Confirm `info@cognika.tech` is the real, monitored address → I remove the comment.
-- **(b)** Give me the correct address → I substitute it.
-- **(c)** No public email yet → I remove the mailto entirely and `/contact/`
-  keeps only the invitation text, with no fabricated channel.
+Test config was created locally only (`inc/config.php`, gitignored) and removed
+afterwards. No real credentials were used or committed.
 
-**Do not deploy `/contact/` with an unverified address.**
+### Navigator click-through (Chrome headless, JS enabled)
 
-## 2. 🟠 `/projects/` page — added, not in the spec
+```
+ABOUT     -> /about/      h1 About Cognika    PASS
+e_OS      -> /e-os/       h1 e_os             PASS
+pat_ia    -> /pat-ia/     h1 pat_ia           PASS
+Srm_p     -> /srm-p/      h1 Srm_p            PASS
+PROJECTS  -> /projects/   h1 Projects         PASS
+CONTACT   -> /contact/    h1 Contact Cognika  PASS
+6/6
+```
 
-The spec lists "Projects" as a top-level nav item but defines no `/projects/`
-content. Two options were available: point "Projects" at an anchor, or create a
-real page. I created `/projects/` with an H1, one sentence of spec wording, and
-three cards linking to the project pages. **No new claims** — the card copy is
-lifted from the project pages' own opening statements.
+## ✅ 6. Landing page + navigator preserved
 
-**Confirm** you want `/projects/` to exist. If not, I will repoint the nav item
-to `/` and delete the page.
+Per owner instruction, the **original landing page is restored byte-for-byte**
+from production (11,527 B). The orbit navigator keeps its exact circular layout,
+icons, labels and hover/active styling.
 
-## 3. 🟠 Naming: spec says `pat_ia`, existing site says `pa_ia`
+**The only change:** the six `<button type="button">` elements are now
+`<a class="orbit-node" href="...">`. This was required by the spec's rule that
+navigation must work without JavaScript. Additions:
 
-| Source | Spelling |
-|---|---|
-| `CONTENT_SPECIFICATION.md` (authoritative) | **`pat_ia`** |
-| Existing `index.html` nav | `pa_ia` |
-| Spec's own URL for the page | `/pa-ia/` |
+- `href` pointing at the new page for each of the six nodes
+- `aria-current="page"` on the active node (replaces `aria-pressed`)
+- `node-downloads` relabelled `PROJECTS` / `RESOURCES` -> `/projects/`
+  (previously pointed nowhere; the spec defines no downloads page)
+- `node-paia` caption `INTELLIGENT ERP` -> `INTELLIGENT BUSINESS` (matches spec)
 
-I followed the spec for **visible text** (`pat_ia`) and used the spec's URL
-(`/pa-ia/`). **This mismatch should be resolved** — if the product name is
-`pat_ia`, the URL `/pa-ia/` is a small inconsistency. I kept it because the spec
-specifies that URL explicitly.
+`script.js` is **unchanged**: it hooks `.orbit-node` and `data-section`, both of
+which the `<a>` elements retain, and it never calls `preventDefault()` — so
+hover/focus still shows section detail, and clicks navigate.
 
-## 4. 🟡 e_os technical depth
-
-The spec asks whether `e_os` should publish detailed technical specifications or
-retain a higher-level description. I implemented the **higher-level** version
-only, exactly as written. No specifications added.
-
-## 5. 🟡 pat_ia expansion
-
-The spec asks whether `pat_ia` should be expanded into a fuller product
-description. I implemented only the concept text supplied. No expansion.
-
-## 6. 🟡 SRM simulation results — not published
-
-The spec states: *"Any efficiency-class result must be described as a simulation
-result, not a certified IE5 classification."* and asks which results are
-suitable for public disclosure.
-
-**I published no efficiency figures at all.** The page shows only the design
-parameters the spec supplied (150 mm, 100 mm, 3 N·m, 1,000 rpm, inverter-fed)
-and labels them as design targets. No simulated or measured performance numbers
-appear. Nothing to disclose until you approve specific figures.
-
-## 7. 🟡 Social profiles / `sameAs`
-
-No verified social profiles exist, so the `Organization` JSON-LD carries **no
-`sameAs`** property (audit finding F6 remains open). Supply authoritative
-profile URLs and I will add them.
-
-## 8. ✅ Editorial constraints — how each was honoured
-
-| Constraint | Implementation |
-|---|---|
-| No invented projects/capabilities | Only e_os, pat_ia, Srm_p — the three in the spec |
-| No invented specs or results | Srm_p shows design parameters only, labelled as such |
-| Don't claim deployment | e_os status says "tested in simulation, progressing toward on-site testing"; spec's forbidden phrase "deployed in operational buildings" is absent (verified by grep) |
-| Don't present concepts as available | pat_ia page is titled "Project concept" with a status note stating capabilities are a direction, not available features |
-| Distinguish concept/simulation/measured | Explicit `.status-note` block on every project page |
-| No IE5 / certification claims | Verified absent by grep |
+⚠️ **Nothing has been merged, deployed, or changed in production, DNS or firewall.**

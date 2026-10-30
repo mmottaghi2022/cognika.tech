@@ -4,30 +4,30 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#03050a">
-  <meta name="description" content="Cognika develops cognitive intelligence for agentic solutions, intelligent software and industrial systems.">
-  <title>Cognika — Bringing Cognition to AI</title>
-  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <meta name="description" content="Cognika — intelligence, engineering, and adaptive systems. e_OS intelligent lift operating system, pa_ia intelligent ERP, and Srm_p motor systems research.">
+  <title>COGNIKA — Intelligence Creates Tomorrow</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="canonical" href="https://cognika.tech/">
-  <link rel="stylesheet" href="/assets/css/styles.css?v=21">
-  <link rel="stylesheet" href="/assets/css/pages.css?v=1">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Cognika">
   <meta property="og:url" content="https://cognika.tech/">
-  <meta property="og:title" content="Cognika — Bringing Cognition to AI">
-  <meta property="og:description" content="Cognitive intelligence for agentic solutions, intelligent software and industrial systems.">
+  <meta property="og:title" content="COGNIKA — Intelligence Creates Tomorrow">
+  <meta property="og:description" content="Intelligence, engineering, and adaptive systems: e_OS, pa_ia, and Srm_p.">
   <meta property="og:image" content="https://cognika.tech/assets/img/back_ground.webp">
   <meta property="og:image:type" content="image/webp">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="675">
   <meta property="og:image:alt" content="Cognika backdrop: a spiral galaxy with a bright core in deep space">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Cognika — Bringing Cognition to AI">
-  <meta name="twitter:description" content="Cognitive intelligence for agentic solutions, intelligent software and industrial systems.">
+  <meta name="twitter:title" content="COGNIKA — Intelligence Creates Tomorrow">
+  <meta name="twitter:description" content="Intelligence, engineering, and adaptive systems: e_OS, pa_ia, and Srm_p.">
   <meta name="twitter:image" content="https://cognika.tech/assets/img/back_ground.webp">
 
+  <link rel="stylesheet" href="assets/css/styles.css?v=21">
+  <link rel="preload" as="image" href="assets/img/back_ground.webp" type="image/webp" fetchpriority="high">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -43,83 +43,135 @@
 <body class="has-backdrop">
   <div class="backdrop" aria-hidden="true">
     <picture>
-      <source srcset="/assets/img/back_ground.webp" type="image/webp">
-      <img src="/assets/img/back_ground.webp" alt="" width="1200" height="675" decoding="async" fetchpriority="high">
+      <source srcset="assets/img/back_ground.webp" type="image/webp">
+      <img src="assets/img/back_ground.webp" alt="" width="1200" height="675" decoding="async" fetchpriority="high">
     </picture>
   </div>
+  <canvas class="meteor-sky" id="meteorSky" aria-hidden="true"></canvas>
+  <div class="cosmos" aria-hidden="true">
+    <div class="nebula nebula-a"></div>
+    <div class="nebula nebula-b"></div>
+    <div class="star-layer star-layer-a"></div>
+    <div class="star-layer star-layer-b"></div>
+    <div class="star-layer star-layer-c"></div>
+    <span class="meteor meteor-one"></span>
+    <span class="meteor meteor-two"></span>
+    <span class="meteor meteor-three"></span>
+    <span class="meteor meteor-four"></span>
+  </div>
 
-  <header class="site-nav">
-    <div class="site-nav-inner">
-      <a class="brand" href="/" aria-label="Cognika home">
-        <img class="brand-logo" src="/assets/img/logo.png" alt="Cognika" width="1700" height="300" fetchpriority="high">
-        <span class="brand-tagline">INTELLIGENCE CREATES TOMORROW</span>
-      </a>
-      <nav aria-label="Main navigation">
-        <ul class="site-nav-list">
-          <li><a class="site-nav-link" href="/about/">About</a></li>
-          <li><a class="site-nav-link" href="/projects/">Projects</a></li>
-          <li><a class="site-nav-link" href="/e-os/">e_os</a></li>
-          <li><a class="site-nav-link" href="/pa-ia/">pat_ia</a></li>
-
-  <main class="page-shell">
-    <header class="page-header">
-      <p class="page-eyebrow">Cognika</p>
-      <h1 class="page-title">Cognika</h1>
-      <p class="page-lede"><strong>Bringing cognition to AI.</strong></p>
-      <p class="page-lede">We develop cognitive intelligence for agentic solutions, intelligent software and industrial systems.</p>
-      <p class="page-lede">Our approach begins with understanding the problem: clarifying ideas, objectives, requirements and constraints before turning them into intelligent solutions.</p>
-    </header>
-
-    <div class="prose">
-      <h2>Engineering intelligence into real systems</h2>
-
-      <p>Our projects explore how cognitive intelligence, automation and intelligent software can transform the way systems are designed, developed and operated.</p>
+  <div class="landing" id="landing">
+    <div class="landing-inner">
+      <img class="landing-logo" id="landingLogo" src="assets/img/logo.png" alt="Cognika"
+           width="1700" height="300" fetchpriority="high">
+      <div class="landing-copy" id="landingCopy">
+        <p class="landing-line is-active" data-for="about">We bring cognition to AI<br>The next step in agentic intelligence</p>
+      </div>
     </div>
+  </div>
 
-    <ul class="project-grid">
-      <li>
-        <a class="project-card" href="/e-os/">
-          <span class="project-card-caption">Elevator Operating System</span>
-          <span class="project-card-name">e_os</span>
-          <span class="project-card-copy">An intelligent elevator dispatch system designed to learn building traffic patterns, evaluate service performance and optimize elevator operation.</span>
-          <span class="project-card-more">View project</span>
-        </a>
-      </li>
-      <li>
-        <a class="project-card" href="/pa-ia/">
-          <span class="project-card-caption">Intelligent Business System</span>
-          <span class="project-card-name">pat_ia</span>
-          <span class="project-card-copy">Rethinking enterprise software through cognitive intelligence and agentic automation.</span>
-          <span class="project-card-more">View project</span>
-        </a>
-      </li>
-      <li>
-        <a class="project-card" href="/srm-p/">
-          <span class="project-card-caption">Motor Systems Research</span>
-          <span class="project-card-name">Srm_p</span>
-          <span class="project-card-copy">Exploring efficient, robust synchronous reluctance motor technology for industrial applications.</span>
-          <span class="project-card-more">View project</span>
-        </a>
-      </li>
-    </ul>
+  <canvas class="logo-flame" id="logoFlame" aria-hidden="true"></canvas>
 
-    <ul class="page-next">
-      <li><a href="/about/">About Cognika</a></li>
-      <li><a href="/projects/">All projects</a></li>
-      <li><a href="/contact/">Contact</a></li>
-    </ul>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="Cognika home">
+      <img class="brand-logo" src="assets/img/logo.png" alt="Cognika" width="1700" height="300" fetchpriority="high">
+      <span class="brand-tagline">INTELLIGENCE CREATES TOMORROW</span>
+    </a>
+    <button class="mobile-menu-toggle" type="button" aria-label="Show navigation" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <main id="home" class="universe">
+    <!-- Left column: all writing. Center summary + detail card for the
+         hovered circle. Right column: the orbit wheel. -->
+    <section class="writing-pane" aria-label="Cognika section details">
+      <div class="center-panel" aria-live="polite" aria-atomic="true">
+        <div class="panel-topline"><span class="status-dot"></span><span id="panelEyebrow">COGNIKA / ABOUT</span><span class="panel-index" id="panelIndex">01 — 06</span></div>
+        <div class="panel-content">
+          <div class="panel-symbol" id="panelSymbol" aria-hidden="true">
+            <img class="panel-logo" src="assets/img/favicon.svg" alt="" width="40" height="40">
+          </div>
+          <h1 id="panelTitle">Cognika</h1>
+          <p class="panel-teaser" id="panelTeaser">Bringing cognition to artificial intelligence.</p>
+        </div>
+      </div>
+
+      <aside class="hover-info is-visible" id="hoverInfo" aria-hidden="false">
+        <div class="hover-info-topline">
+          <span class="hover-info-dot"></span>
+          <span id="hoverEyebrow">COGNIKA / ABOUT</span>
+          <span class="hover-info-index" id="hoverIndex">01 — 06</span>
+        </div>
+        <p class="hover-info-kicker" id="hoverKicker">INTELLIGENCE CREATES TOMORROW</p>
+        <h2 class="hover-info-title" id="hoverTitle">Cognika</h2>
+        <div class="hover-info-rule"></div>
+        <p class="hover-info-description" id="hoverDescription">Cognika aims to bring cognition to artificial intelligence. We envision intelligent systems that go beyond executing predefined instructions to understand, reason, learn, and adapt. By combining advanced AI with engineering, software development, and automation, we transform intelligence into systems that can design, create, and continuously improve.</p>
+        <div class="hover-info-topics" id="hoverTopics" aria-label="Selected section topics">
+          <button type="button" data-topic="Our vision">Our vision <span aria-hidden="true">↗</span></button>
+          <button type="button" data-topic="Engineering philosophy">Engineering philosophy <span aria-hidden="true">↗</span></button>
+          <button type="button" data-topic="Research &amp; development">Research &amp; development <span aria-hidden="true">↗</span></button>
+        </div>
+        <p class="hover-info-detail" id="hoverDetail">Choose a topic to preview this section.</p>
+        <button class="hover-info-action" id="hoverAction" type="button">EXPLORE SECTION <span aria-hidden="true">↗</span></button>
+      </aside>
+
+      <div class="stage-coordinate coordinate-one" aria-hidden="true">37° 46' N<br>122° 25' W</div>
+    </section>
+
+    <section class="orbit-stage" aria-label="Cognika interactive project navigation">
+      <nav class="orbit-menu" aria-label="Main navigation">
+        <a class="orbit-node node-about is-active" href="/about/" data-section="about" aria-label="About Cognika" aria-current="page">
+          <span class="node-icon icon-cognika" aria-hidden="true"><img src="assets/img/favicon.svg" alt="" width="64" height="64"></span>
+          <span class="node-label">ABOUT</span>
+          <span class="node-caption">COGNIKA</span>
+        </a>
+        <a class="orbit-node node-eos" href="/e-os/" data-section="eos" aria-label="e_OS intelligent lift operating system">
+          <span class="node-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="12" y="6" width="24" height="36" rx="2"/><path d="M24 13v22M20 18l4-4 4 4"/></svg></span>
+          <span class="node-label">e_OS</span>
+          <span class="node-caption">LIFT SYSTEM</span>
+        </a>
+        <a class="orbit-node node-paia" href="/pat-ia/" data-section="paia" aria-label="pat_ia intelligent business system">
+          <span class="node-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 7v34M7 24h34M12 12l24 24M36 12 12 36"/><circle cx="24" cy="24" r="9"/><circle cx="24" cy="7" r="2"/><circle cx="24" cy="41" r="2"/><circle cx="7" cy="24" r="2"/><circle cx="41" cy="24" r="2"/></svg></span>
+          <span class="node-label">pat_ia</span>
+          <span class="node-caption">INTELLIGENT BUSINESS</span>
+        </a>
+        <a class="orbit-node node-srm" href="/srm-p/" data-section="srm" aria-label="Srm_p salient reluctance positioning motor">
+          <span class="node-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M36.330 21.406 L42.395 22.028 L42.395 25.972 L36.330 26.594 L35.500 29.149 L40.041 33.216 L37.722 36.408 L32.451 33.346 L30.277 34.925 L31.560 40.885 L27.808 42.104 L25.343 36.528 L22.657 36.528 L20.192 42.104 L16.440 40.885 L17.723 34.925 L15.549 33.346 L10.278 36.408 L7.959 33.216 L12.500 29.149 L11.670 26.594 L5.605 25.972 L5.605 22.028 L11.670 21.406 L12.500 18.851 L7.959 14.784 L10.278 11.592 L15.549 14.654 L17.723 13.075 L16.440 7.115 L20.192 5.896 L22.657 11.472 L25.343 11.472 L27.808 5.896 L31.560 7.115 L30.277 13.075 L32.451 14.654 L37.722 11.592 L40.041 14.784 L35.500 18.851 Z"/><circle cx="24" cy="24" r="7"/></svg></span>
+          <span class="node-label">Srm_p</span>
+          <span class="node-caption">MOTOR SYSTEMS</span>
+        </a>
+        <a class="orbit-node node-downloads" href="/projects/" data-section="downloads" aria-label="Projects and resources">
+          <span class="node-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="M24 5v25m-9-9 9 9 9-9M8 31v10h32V31"/></svg></span>
+          <span class="node-label">PROJECTS</span>
+          <span class="node-caption">RESOURCES</span>
+        </a>
+        <a class="orbit-node node-contact" href="/contact/" data-section="contact" aria-label="Contact Cognika">
+          <span class="node-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="5" y="10" width="38" height="28" rx="2"/><path d="m7 13 17 14 17-14"/></svg></span>
+          <span class="node-label">CONTACT</span>
+          <span class="node-caption">LET'S CONNECT</span>
+        </a>
+      </nav>
+      <div class="stage-coordinate coordinate-two" aria-hidden="true">COGNITIVE SYSTEMS<br>BUILD / LEARN / EVOLVE</div>
+    </section>
   </main>
 
   <footer class="footerbar">
     <div class="footer-note"><span class="footer-line"></span><span>BUILT FOR A SMARTER FUTURE</span></div>
-    <div class="footer-right"><span class="footer-status">SYSTEMS THINKING, ENGINEERED</span></div>
+    <div class="footer-right"><span class="footer-status">SYSTEMS THINKING, ENGINEERED</span><span class="footer-orb" aria-hidden="true"><span></span></span></div>
   </footer>
+
+  <dialog class="detail-dialog" id="detailDialog" aria-labelledby="dialogTitle">
+    <button class="dialog-close" id="dialogClose" type="button" aria-label="Close details">×</button>
+    <p class="dialog-eyebrow" id="dialogEyebrow">COGNIKA / OVERVIEW</p>
+    <h2 id="dialogTitle">e_OS</h2>
+    <p id="dialogDescription">A smarter control layer for lift systems.</p>
+    <div class="dialog-rule"></div>
+    <p class="dialog-note">This homepage is a front-end concept. Dedicated project pages, downloads, and contact details can be connected as those resources are ready.</p>
+  </dialog>
+
+  <script src="assets/js/meteors.js?v=9" defer></script>
+  <script src="assets/js/script.js?v=16" defer></script>
+  <script src="assets/js/flame.js?v=2" defer></script>
 </body>
 </html>
-
-          <li><a class="site-nav-link" href="/srm-p/">Srm_p</a></li>
-          <li><a class="site-nav-link" href="/contact/">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
