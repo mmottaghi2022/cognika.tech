@@ -31,12 +31,26 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Cognika",
-    "url": "https://cognika.tech/",
-    "logo": "https://cognika.tech/assets/img/favicon.svg",
-    "slogan": "Intelligence Creates Tomorrow",
-    "description": "Cognika brings AI, software, electronics, and automation together to make complex systems more capable."
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://cognika.tech/#organization",
+        "name": "Cognika",
+        "url": "https://cognika.tech/",
+        "logo": "https://cognika.tech/assets/img/favicon.svg",
+        "slogan": "Intelligence Creates Tomorrow",
+        "description": "Cognika brings AI, software, electronics, and automation together to make complex systems more capable."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://cognika.tech/#website",
+        "url": "https://cognika.tech/",
+        "name": "Cognika",
+        "description": "Cognitive intelligence for agentic solutions, intelligent software and industrial systems.",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://cognika.tech/#organization" }
+      }
+    ]
   }
   </script>
 </head>

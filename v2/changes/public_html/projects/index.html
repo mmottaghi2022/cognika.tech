@@ -25,15 +25,64 @@
   <meta property="og:image:alt" content="Cognika backdrop: a spiral galaxy with a bright core in deep space">
 
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Cognika",
-    "url": "https://cognika.tech/",
-    "logo": "https://cognika.tech/assets/img/favicon.svg",
-    "slogan": "Intelligence Creates Tomorrow",
-    "description": "Cognika brings AI, software, electronics, and automation together to make complex systems more capable."
-  }
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://cognika.tech/#organization"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://cognika.tech/#website"
+    },
+    {
+      "@type": "CollectionPage",
+      "@id": "https://cognika.tech/projects/#webpage",
+      "url": "https://cognika.tech/projects/",
+      "name": "Projects — e_os, pat_ia and Srm_p | Cognika",
+      "description": "Cognika projects explore how cognitive intelligence, automation and intelligent software can transform the way systems are designed, developed and operated.",
+      "isPartOf": {
+        "@id": "https://cognika.tech/#website"
+      },
+      "about": {
+        "@id": "https://cognika.tech/#organization"
+      },
+      "inLanguage": "en",
+      "breadcrumb": {
+        "@id": "https://cognika.tech/projects/#breadcrumb"
+      },
+      "hasPart": [
+        {
+          "@id": "https://cognika.tech/e-os/#webpage"
+        },
+        {
+          "@id": "https://cognika.tech/pat-ia/#webpage"
+        },
+        {
+          "@id": "https://cognika.tech/srm-p/#webpage"
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://cognika.tech/projects/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://cognika.tech/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Projects"
+        }
+      ]
+    }
+  ]
+}
   </script>
 </head>
 <body class="has-backdrop">

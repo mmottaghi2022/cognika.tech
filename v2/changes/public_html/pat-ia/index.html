@@ -25,15 +25,59 @@
   <meta property="og:image:alt" content="Cognika backdrop: a spiral galaxy with a bright core in deep space">
 
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Cognika",
-    "url": "https://cognika.tech/",
-    "logo": "https://cognika.tech/assets/img/favicon.svg",
-    "slogan": "Intelligence Creates Tomorrow",
-    "description": "Cognika brings AI, software, electronics, and automation together to make complex systems more capable."
-  }
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://cognika.tech/#organization"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://cognika.tech/#website"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://cognika.tech/pat-ia/#webpage",
+      "url": "https://cognika.tech/pat-ia/",
+      "name": "pat_ia — Intelligent, Self-Implementing Business System | Cognika",
+      "description": "pat_ia explores a different approach to enterprise resource planning: a business system concept built on cognitive intelligence and agentic automation rather than fixed workflows.",
+      "isPartOf": {
+        "@id": "https://cognika.tech/#website"
+      },
+      "about": {
+        "@id": "https://cognika.tech/#organization"
+      },
+      "inLanguage": "en",
+      "breadcrumb": {
+        "@id": "https://cognika.tech/pat-ia/#breadcrumb"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://cognika.tech/pat-ia/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://cognika.tech/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Projects",
+          "item": "https://cognika.tech/projects/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "pat_ia"
+        }
+      ]
+    }
+  ]
+}
   </script>
 </head>
 <body class="has-backdrop">

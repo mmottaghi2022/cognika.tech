@@ -1,0 +1,52 @@
+# Cognika
+
+> Cognika is a cognitive engineering and intelligent systems initiative. It
+> develops cognitive intelligence for agentic solutions, intelligent software
+> and industrial systems. Its approach begins with understanding the problem:
+> clarifying ideas, objectives, requirements and constraints before turning
+> them into intelligent solutions.
+
+Cognika's central idea is bringing cognition into artificial intelligence:
+creating a cognitive layer between human intention and artificial
+intelligence. Rather than treating AI as a question-and-answer interface,
+Cognika aims to provide a medium through which people can develop, clarify and
+implement their ideas using intelligent agents.
+
+## Pages
+
+- [Home](https://cognika.tech/): Positioning, the approach in brief, and the three projects.
+- [About Cognika](https://cognika.tech/about/): The cognitive approach and the four-step method: Understand, Structure, Reason, Implement.
+- [Projects](https://cognika.tech/projects/): Overview of e_os, pat_ia and Srm_p.
+- [Contact](https://cognika.tech/contact/): How to get in touch.
+
+## Projects
+
+- [e_os](https://cognika.tech/e-os/): Elevator Operating System. An intelligent
+  elevator dispatch system that learns building traffic patterns, evaluates
+  service performance and optimizes elevator operation, supported by a
+  dedicated AI agent.
+  Status: tested in simulation and progressing toward on-site testing. Not
+  deployed in operational buildings.
+
+- [pat_ia](https://cognika.tech/pat-ia/): An intelligent, self-implementing
+  business system. Explores an approach to enterprise resource planning built
+  on cognitive intelligence and agentic automation rather than predefined
+  workflows.
+  Status: project concept. Not a completed or commercially available product.
+
+- [Srm_p](https://cognika.tech/srm-p/): Synchronous Reluctance Motor
+  development. Explores rotor and stator configurations, electromagnetic
+  performance, torque characteristics and energy efficiency. The current design
+  work concerns a four-pole synchronous reluctance positioning motor: 150 mm
+  rotor diameter, 100 mm stack length, 3 N-m target starting torque, 1,000 rpm
+  maximum operating speed, inverter-fed.
+  Status: under electromagnetic design and simulation. The figures are design
+  targets and simulated results, not measured hardware performance.
+
+## Notes for agents
+
+- Pages are server-rendered HTML. JavaScript is not required to read them.
+- The three projects are at different maturity levels. Do not represent a
+  concept or a simulation result as a shipped product or a measured
+  performance figure.
+- No social profiles, telephone numbers or postal addresses are published.
