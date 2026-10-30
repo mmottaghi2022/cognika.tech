@@ -55,6 +55,16 @@ a.orbit-node:hover { color: inherit; text-decoration: none; }
   padding: 14px clamp(20px, 4vw, 66px);
 }
 
+/* The nav list must stay on one row with the wordmark, at every width where
+   it fits. `flex: 1 1 auto` lets it claim the remaining space, and
+   `justify-content: flex-end` pins the links to the right so the header
+   reads: wordmark left, navigation right — the same on all seven pages. */
+.site-nav-list {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
 .site-nav .brand { flex: 0 0 auto; }
 
 .site-nav-list {
