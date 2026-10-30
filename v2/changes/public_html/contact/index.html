@@ -85,7 +85,15 @@
   <header class="site-nav">
     <div class="site-nav-inner">
       <a class="brand" href="/" aria-label="Cognika home">
-        <img class="brand-logo" src="/assets/img/logo.png" alt="Cognika" width="1700" height="300">
+        <picture>
+          <source type="image/avif"
+                  srcset="/assets/img/logo-230.avif 230w, /assets/img/logo-460.avif 460w"
+                  sizes="230px">
+          <source type="image/webp"
+                  srcset="/assets/img/logo-230.webp 230w, /assets/img/logo-460.webp 460w"
+                  sizes="230px">
+          <img class="brand-logo" src="/assets/img/logo.png" alt="Cognika" width="1700" height="300">
+        </picture>
         <span class="brand-tagline">INTELLIGENCE CREATES TOMORROW</span>
       </a>
       <nav aria-label="Main navigation">

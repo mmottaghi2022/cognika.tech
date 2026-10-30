@@ -76,8 +76,16 @@
 
   <div class="landing" id="landing">
     <div class="landing-inner">
-      <img class="landing-logo" id="landingLogo" src="assets/img/logo.png" alt="Cognika"
-           width="1700" height="300" fetchpriority="high">
+      <picture>
+        <source type="image/avif"
+                srcset="assets/img/logo-230.avif 230w, assets/img/logo-460.avif 460w, assets/img/logo-900.avif 900w, assets/img/logo-1800.avif 1800w"
+                sizes="(max-width: 640px) 78vw, min(78vw, calc(74vh * 5.667))">
+        <source type="image/webp"
+                srcset="assets/img/logo-230.webp 230w, assets/img/logo-460.webp 460w, assets/img/logo-900.webp 900w, assets/img/logo-1800.webp 1800w"
+                sizes="(max-width: 640px) 78vw, min(78vw, calc(74vh * 5.667))">
+        <img class="landing-logo" id="landingLogo" src="assets/img/logo.png" alt="Cognika"
+             width="1700" height="300" fetchpriority="high">
+      </picture>
       <div class="landing-copy" id="landingCopy">
         <p class="landing-line is-active" data-for="about">We bring cognition to AI<br>The next step in agentic intelligence</p>
       </div>
@@ -88,7 +96,15 @@
 
   <header class="topbar">
     <a class="brand" href="#home" aria-label="Cognika home">
-      <img class="brand-logo" src="assets/img/logo.png" alt="Cognika" width="1700" height="300" fetchpriority="high">
+      <picture>
+        <source type="image/avif"
+                srcset="assets/img/logo-230.avif 230w, assets/img/logo-460.avif 460w"
+                sizes="230px">
+        <source type="image/webp"
+                srcset="assets/img/logo-230.webp 230w, assets/img/logo-460.webp 460w"
+                sizes="230px">
+        <img class="brand-logo" src="assets/img/logo.png" alt="Cognika" width="1700" height="300" fetchpriority="high">
+      </picture>
       <span class="brand-tagline">INTELLIGENCE CREATES TOMORROW</span>
     </a>
     <button class="mobile-menu-toggle" type="button" aria-label="Show navigation" aria-expanded="false">

@@ -48,11 +48,28 @@
     };
   }
 
+  // The flame only needs re-measuring when the logo box actually changes.
+  // Calling layout() every frame (as the old follow() loop did) caused two
+  // problems: it wrote canvas width/height continuously, and it re-measured a
+  // logo whose box was still settling, producing a 0.44-0.66 layout shift.
+  var lastKey = '';
+
+  function boxKey(r) {
+    return r.left.toFixed(1) + '|' + r.top.toFixed(1) + '|' +
+           r.width.toFixed(1) + '|' + r.height.toFixed(1);
+  }
+
   function layout() {
     var logo = visibleLogo();
     if (!logo) return;
     var r = logo.getBoundingClientRect();
     if (!r.width || !r.height) return;
+
+    // Skip all writes when nothing moved. This is what keeps the canvas from
+    // being resized (and clearing) on every animation frame.
+    var key = boxKey(r);
+    if (key === lastKey) return;
+    lastKey = key;
 
     var left = r.left + r.width * RIDGE[0][0] - r.width * 0.02;
     var top = r.top + r.height * 0.0767 - r.height * 2.1;
@@ -132,12 +149,34 @@
     return 'rgba(48, 128, 255, ' + a + ')';
   }
 
+  // ---- Loop control -------------------------------------------------------
+  // The flame used to animate forever, including in background tabs. It now
+  // stops while the page is hidden and resumes on return. Same appearance.
+  var running = false;
+  var rafId = 0;
+  var hidden = false;
+
+  function start() {
+    if (running || hidden) return;
+    running = true;
+    last = 0;
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    if (!running) return;
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
+
   function frame(t) {
     if (!W || !H || !box) {
       layout();
-      requestAnimationFrame(frame);
+      rafId = requestAnimationFrame(frame);
       return;
     }
+    if (!running) return;
     var dt = last ? Math.min((t - last) / 16.67, 3) : 1;
     last = t;
 
@@ -175,13 +214,24 @@
     }
 
     ctx.globalCompositeOperation = 'source-over';
-    requestAnimationFrame(frame);
+    rafId = requestAnimationFrame(frame);
   }
 
   window.addEventListener('resize', layout);
-  (function follow() { layout(); requestAnimationFrame(follow); })();
+
+  // Re-measure only on the events that can actually move the logo: load,
+  // font swap, and the landing -> panel transition. No per-frame polling.
   if (document.readyState === 'complete') layout();
   else window.addEventListener('load', layout);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+
+  // script.js adds .panel-ready to <body> when the flying wordmark lands and the
+  // flame should move from #landingLogo to .brand-logo. Watch for that swap.
+  if (window.MutationObserver) {
+    new MutationObserver(layout).observe(document.body, {
+      attributes: true, attributeFilter: ['class']
+    });
+  }
 
   // Test hook: render N frames without relying on rAF (headless throttles it).
   window.__flameTick = function (frames) {
@@ -192,5 +242,10 @@
     }) };
   };
 
-  requestAnimationFrame(frame);
+  document.addEventListener('visibilitychange', function () {
+    hidden = document.visibilityState === 'hidden';
+    if (hidden) stop(); else start();
+  });
+
+  start();
 })();
