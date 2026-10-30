@@ -11,3 +11,16 @@ public_html/inc/config.php
 # Mailbox / account passwords — never commit these.
 pass_info.rtf
 *pass_info*
+
+# Large binary research/design documents (Apple Pages, Office docs).
+# Keep source-of-truth binaries out of git; export text if needed.
+research/*.pages
+research/*.key
+research/*.docx
+research/*.pptx
+*.pages
+
+# macOS/Office scratch files
+*.swp
+~$*
+._*
