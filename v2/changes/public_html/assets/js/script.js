@@ -350,12 +350,16 @@
     document.body.classList.add('landing-flown');
 
     const finish = () => {
+      if (landing.classList.contains('is-done')) return;
       // The flying wordmark has landed: swap it for the real header logo.
       landing.classList.add('is-done');
       landingLogo.style.visibility = 'hidden';
       document.body.classList.remove('landing-active');
       document.body.classList.remove('panel-hidden');
       document.body.classList.add('panel-ready');
+      // Drop the first-paint rules in styles.css; from here the plain body
+      // classes are the only thing controlling the panel.
+      document.documentElement.classList.remove('js');
       if (pendingSection) {
         renderSection(pendingSection, { fromHover: true });
         pendingSection = null;
@@ -407,4 +411,20 @@
 
   // Hide the header wordmark and the left panel while the first page is up.
   document.body.classList.add('landing-active', 'panel-hidden');
+
+  // styles.css applies the same first-paint state from the `js` class that
+  // index.html sets in <head>. It is redundant here, but keeps the rule valid
+  // if the inline script is ever dropped.
+  document.documentElement.classList.add('js');
+
+  // A refresh can happen with the pointer already resting over a circle. The
+  // element under it has not changed, so the browser may never send a
+  // mouseenter and the cover would stay up with no way out. If a node is under
+  // the cursor now, treat it as the hover that reveals it.
+  const hoveredNode = document.querySelector('.orbit-node:hover');
+  if (hoveredNode) {
+    pendingSection = hoveredNode.dataset.section;
+    setLandingLine(pendingSection);
+    flyLogo();
+  }
 })();
