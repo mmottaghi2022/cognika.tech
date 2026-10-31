@@ -309,10 +309,9 @@
     busy = true;
 
     var token = ++navToken;
-    var leavingHome = docEl.classList.contains('landing-page');
 
-    // Start the fetch immediately: it runs underneath the landing cover.
-    var fetched = fetch(url, { credentials: 'same-origin' })
+    // The fetch runs immediately and the page is swapped when it arrives.
+    fetch(url, { credentials: 'same-origin' })
       .then(function (res) {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.text();
@@ -322,27 +321,11 @@
         if (!page) throw new Error('no <main> in response');
         // A catch-all 200 for a missing file must never be swapped in.
         if (routeFor(url) !== route) throw new Error('route mismatch');
-        return page;
-      });
-
-    // The homepage runs its wordmark flight to completion first, against the
-    // header that is still on the page. Nothing is replaced until it ends.
-    var flight = leavingHome ? homeHandOff() : Promise.resolve();
-
-    Promise.all([fetched, flight])
-      .then(function (results) {
-        if (token !== navToken) return null;      // superseded by a newer nav
-        return applyPage(results[0], route, url, opts);
+        if (token !== navToken) return null;    // superseded by a newer nav
+        return applyPage(page, route, url, opts);
       })
       .catch(function () { fallback(url); })
       .then(function () { busy = false; });
-  }
-
-  function homeHandOff() {
-    if (window.CognikaHome && typeof window.CognikaHome.handOff === 'function') {
-      return window.CognikaHome.handOff();
-    }
-    return Promise.resolve();
   }
 
   // ---- Wiring -------------------------------------------------------------
@@ -378,7 +361,6 @@
     window.history.replaceState(state, '', window.location.href);
   }, { passive: true });
 
-  if (routeFor(window.location.href) === HOME) docEl.classList.add('landing-page');
 
   // Exposed for tests and for non-link triggers.
   window.CognikaShell = {

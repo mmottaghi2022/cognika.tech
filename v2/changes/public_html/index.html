@@ -227,12 +227,12 @@
   <!-- meteors.js runs first, so script.js (which owns the landing transition)
        only starts once the sky has been painted. `defer` keeps the parser
        order, which is what hands the first paint to the sky canvas.
-       script.js is preloaded because a Home click from any sub-page is a fresh
-       document: nothing is reused from the page it leaves. -->
-  <link rel="preload" href="assets/js/script.js?v=20" as="script">
+       No <link rel=preload> here: the page is a fresh document on every visit,
+       so the preload added a competing request for a file the <script> below
+       fetches anyway, and it gave no measurable benefit. -->
   <script src="assets/js/meteors.js?v=15" defer></script>
-  <script src="assets/js/script.js?v=20" defer></script>
+  <script src="assets/js/script.js?v=21" defer></script>
   <script src="assets/js/flame.js?v=8" defer></script>
-  <script src="/assets/js/shell.js?v=3" defer></script>
+  <script src="/assets/js/shell.js?v=5" defer></script>
 </body>
 </html>
