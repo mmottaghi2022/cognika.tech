@@ -1,4 +1,20 @@
-(() => {
+/* Homepage module — the landing cover, the orbit navigator and the wordmark
+ * flight.
+ *
+ * It used to be an IIFE that ran on load and looked elements up immediately.
+ * The shell re-inserts this page without reloading the document, so the module
+ * is now a factory: mount() binds to whatever <main> is currently in the
+ * document, and returns a cleanup function for the shell to call before the
+ * page is replaced.
+ *
+ * It also exposes handOff(): the promise of the landing transition, so the
+ * shell can run the flight to completion against the header that is still on
+ * the page before swapping anything.
+ */
+window.CognikaHome = (function () {
+  'use strict';
+
+  // ---- Page data ----------------------------------------------------------
   const sections = {
     about: {
       index: '01 — 06', eyebrow: 'COGNIKA / ABOUT', title: 'Cognika', kicker: 'INTELLIGENCE CREATES TOMORROW',
@@ -86,27 +102,40 @@
     }
   };
 
-  const nodes = [...document.querySelectorAll('.orbit-node')];
-  const panelIndex = document.getElementById('panelIndex');
-  const panelEyebrow = document.getElementById('panelEyebrow');
-  const panelTitle = document.getElementById('panelTitle');
-  const panelTeaser = document.getElementById('panelTeaser');
-  const panelSymbol = document.getElementById('panelSymbol');
-  const hoverInfo = document.getElementById('hoverInfo');
-  const hoverEyebrow = document.getElementById('hoverEyebrow');
-  const hoverIndex = document.getElementById('hoverIndex');
-  const hoverKicker = document.getElementById('hoverKicker');
-  const hoverTitle = document.getElementById('hoverTitle');
-  const hoverDescription = document.getElementById('hoverDescription');
-  const hoverTopics = document.getElementById('hoverTopics');
-  const hoverDetail = document.getElementById('hoverDetail');
-  const hoverAction = document.getElementById('hoverAction');
-  const dialog = document.getElementById('detailDialog');
-  const dialogEyebrow = document.getElementById('dialogEyebrow');
-  const dialogTitle = document.getElementById('dialogTitle');
-  const dialogDescription = document.getElementById('dialogDescription');
-  const dialogClose = document.getElementById('dialogClose');
-  const mobileToggle = document.querySelector('.mobile-menu-toggle');
+  // ---- Elements -----------------------------------------------------------
+  // Bound by mount(), not at load: after a shell navigation this module runs
+  // against freshly inserted markup, so every lookup has to happen then.
+  let nodes = [];
+  let panelIndex, panelEyebrow, panelTitle, panelTeaser, panelSymbol;
+  let hoverInfo, hoverEyebrow, hoverIndex, hoverKicker, hoverTitle;
+  let hoverDescription, hoverTopics, hoverDetail, hoverAction;
+  let dialog, dialogEyebrow, dialogTitle, dialogDescription, dialogClose;
+  let mobileToggle;
+
+  function bindElements(main) {
+    const root = main || document;
+    nodes = [...root.querySelectorAll('.orbit-node')];
+    panelIndex = document.getElementById('panelIndex');
+    panelEyebrow = document.getElementById('panelEyebrow');
+    panelTitle = document.getElementById('panelTitle');
+    panelTeaser = document.getElementById('panelTeaser');
+    panelSymbol = document.getElementById('panelSymbol');
+    hoverInfo = document.getElementById('hoverInfo');
+    hoverEyebrow = document.getElementById('hoverEyebrow');
+    hoverIndex = document.getElementById('hoverIndex');
+    hoverKicker = document.getElementById('hoverKicker');
+    hoverTitle = document.getElementById('hoverTitle');
+    hoverDescription = document.getElementById('hoverDescription');
+    hoverTopics = document.getElementById('hoverTopics');
+    hoverDetail = document.getElementById('hoverDetail');
+    hoverAction = document.getElementById('hoverAction');
+    dialog = document.getElementById('detailDialog');
+    dialogEyebrow = document.getElementById('dialogEyebrow');
+    dialogTitle = document.getElementById('dialogTitle');
+    dialogDescription = document.getElementById('dialogDescription');
+    dialogClose = document.getElementById('dialogClose');
+    mobileToggle = document.querySelector('.mobile-menu-toggle');
+  }
   let activeKey = 'about';
 
   const symbols = {
@@ -257,68 +286,19 @@
     document.body.classList.remove('card-open');
   };
 
-  nodes.forEach(node => {
-    const key = node.dataset.section;
-    node.addEventListener('mouseenter', () => showFor(key));
-    node.addEventListener('focus', () => showFor(key));
-    node.addEventListener('click', () => showFor(key));
-  });
-
-  // Escape hides it for keyboard users; otherwise it persists.
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && hoverInfo.classList.contains('is-visible')) hideCard();
-  });
-
-  // "Explore section" navigates to the real page for the active section
-  // instead of opening a dialog. A dialog would put the content outside the
-  // page it belongs to; each section now has its own crawlable URL, so the
-  // button is a plain navigation to that URL.
-  const SECTION_URLS = {
-    about: '/about/',
-    eos: '/e-os/',
-    paia: '/pat-ia/',
-    srm: '/srm-p/',
-    downloads: '/projects/',
-    contact: '/contact/'
-  };
-
-  hoverAction.addEventListener('click', () => {
-    const target = SECTION_URLS[activeKey];
-    if (target) {
-      window.location.href = target;
-      return;
-    }
-    // Fallback for any section without a page: keep the old dialog behaviour.
-    const data = sections[activeKey];
-    dialogEyebrow.textContent = data.eyebrow;
-    dialogTitle.textContent = data.title;
-    dialogDescription.textContent = data.dialog;
-    if (typeof dialog.showModal === 'function') dialog.showModal();
-    else dialog.setAttribute('open', '');
-  });
-  dialogClose.addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', event => {
-    if (event.target === dialog) dialog.close();
-  });
-
-  mobileToggle?.addEventListener('click', () => {
-    const isExpanded = mobileToggle.getAttribute('aria-expanded') === 'true';
-    mobileToggle.setAttribute('aria-expanded', String(!isExpanded));
-    document.querySelector('.orbit-stage')?.classList.toggle('mobile-nav-highlight', !isExpanded);
-    if (window.matchMedia('(max-width: 460px)').matches) {
-      document.querySelector('.orbit-menu')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  });
-
   // ---- Landing / first page ---------------------------------------------
   // The navigator stays visible on top of the landing cover. Hovering or
   // focusing a circle flies the big wordmark into the header slot and shows
   // that section's line underneath it.
-  const landing = document.getElementById('landing');
-  const landingLogo = document.getElementById('landingLogo');
-  const landingCopy = document.getElementById('landingCopy');
-  const headerLogo = document.querySelector('.brand-logo');
+  let landing, landingLogo, landingCopy, headerLogo;
   let landingFlown = false;
+  let pendingSection = null;
+
+  // Resolved when the landing transition is over. The shell waits on this
+  // before swapping the header, so the flight always lands on the header that
+  // is still in the document.
+  let flightDone = null;
+  let flightResolve = null;
 
   const LANDING_LINES = {
     about: 'We bring cognition to AI<br>The next step in agentic intelligence',
@@ -329,8 +309,25 @@
     contact: 'Let\u2019s build something intelligent'
   };
 
+  const SECTION_URLS = {
+    about: '/about/',
+    eos: '/e-os/',
+    paia: '/pat-ia/',
+    srm: '/srm-p/',
+    downloads: '/projects/',
+    contact: '/contact/'
+  };
+
+  function settleFlight() {
+    if (flightResolve) {
+      const resolve = flightResolve;
+      flightResolve = null;
+      resolve();
+    }
+  }
+
   function flyLogo() {
-    if (landingFlown) return;
+    if (landingFlown || !landing || !landingLogo || !headerLogo) { settleFlight(); return; }
     landingFlown = true;
 
     // Measure both slots at flight time so the transform is exact.
@@ -350,7 +347,7 @@
     document.body.classList.add('landing-flown');
 
     const finish = () => {
-      if (landing.classList.contains('is-done')) return;
+      if (landing.classList.contains('is-done')) { settleFlight(); return; }
       // The flying wordmark has landed: swap it for the real header logo.
       landing.classList.add('is-done');
       landingLogo.style.visibility = 'hidden';
@@ -359,18 +356,19 @@
       document.body.classList.add('panel-ready');
       // Drop the first-paint rules in styles.css; from here the plain body
       // classes are the only thing controlling the panel.
-      document.documentElement.classList.remove('js');
+      document.documentElement.classList.remove('js', 'cover-up');
       if (pendingSection) {
         renderSection(pendingSection, { fromHover: true });
         pendingSection = null;
       }
+      settleFlight();
     };
     landingLogo.addEventListener('transitionend', finish, { once: true });
     setTimeout(finish, 950);
   }
 
   function setLandingLine(key) {
-    if (!LANDING_LINES[key] || landingFlown) return;
+    if (!LANDING_LINES[key] || landingFlown || !landingCopy) return;
     landingCopy.classList.add('is-swapping');
     setTimeout(() => {
       landingCopy.innerHTML =
@@ -379,52 +377,162 @@
     }, 180);
   }
 
-  // Hovering a circle starts the flight immediately, but the section panel is
-  // only filled and revealed after the wordmark lands.
-  let pendingSection = null;
-
-  nodes.forEach(node => {
-    const key = node.dataset.section;
-    const begin = () => {
-      setLandingLine(key);
-      if (!landingFlown) {
-        pendingSection = key;
-        flyLogo();
-      } else {
-        showSection(key);
-      }
-    };
-    node.addEventListener('mouseenter', begin);
-    node.addEventListener('focus', begin);
-    node.addEventListener('click', () => {
-      if (landingFlown) showSection(key);
-    });
-  });
-
   function showSection(key) {
     renderSection(key, { fromHover: true });
   }
 
-  // Pre-fill the panel with the default section, but keep it hidden until the
-  // first page is dismissed — nothing should appear on the landing screen.
-  renderSection(activeKey, { fromHover: false });
+  // ---- Mount / unmount ----------------------------------------------------
+  let bound = [];
+  let mountToken = false;       // has mount() run in this document?
+  let mountedMain = null;       // the <main> it was bound to
 
-  // Hide the header wordmark and the left panel while the first page is up.
-  document.body.classList.add('landing-active', 'panel-hidden');
-
-  // styles.css applies the same first-paint state from the `js` class that
-  // index.html sets in <head>. It is redundant here, but keeps the rule valid
-  // if the inline script is ever dropped.
-  document.documentElement.classList.add('js');
-
-  // A refresh can happen with the pointer already resting over a circle. The
-  // element under it has not changed, so the browser may never send a
-  // mouseenter and the cover would stay up with no way out. If a node is under
-  // the cursor now, treat it as the hover that reveals it.
-  const hoveredNode = document.querySelector('.orbit-node:hover');
-  if (hoveredNode) {
-    pendingSection = hoveredNode.dataset.section;
-    setLandingLine(pendingSection);
-    flyLogo();
+  function on(target, type, handler, opts) {
+    if (!target) return;
+    target.addEventListener(type, handler, opts);
+    bound.push([target, type, handler, opts]);
   }
+
+  function bindLanding() {
+    landing = document.getElementById('landing');
+    landingLogo = document.getElementById('landingLogo');
+    landingCopy = document.getElementById('landingCopy');
+    headerLogo = document.querySelector('.brand-logo');
+  }
+
+  function mount(main) {
+    // Double-mount guard: a direct load boots this module itself (bottom of
+    // this file) and the shell would otherwise mount it a second time when it
+    // navigates back to the homepage. Two mounts would mean two sets of
+    // listeners on the same nodes.
+    if (mountToken && mountedMain === main) return unmount;
+    mountToken = true;
+    mountedMain = main;
+
+    bound = [];
+    landingFlown = false;
+    pendingSection = null;
+    flightDone = new Promise(resolve => { flightResolve = resolve; });
+
+    bindElements(main);
+    bindLanding();
+
+    // Pre-fill the panel with the default section, but keep it hidden until the
+    // first page is dismissed — nothing should appear on the landing screen.
+    renderSection(activeKey, { fromHover: false });
+
+    // Hide the header wordmark and the left panel while the first page is up.
+    // `cover-up` is the switch styles.css uses for this; it is removed in
+    // flyLogo()'s finish(), so the panel and header wordmark come back the
+    // moment the flying wordmark lands.
+    document.body.classList.add('landing-active', 'panel-hidden');
+    document.documentElement.classList.add('js', 'cover-up');
+
+    nodes.forEach(node => {
+      const key = node.dataset.section;
+      on(node, 'mouseenter', () => showFor(key));
+      on(node, 'focus', () => showFor(key));
+      on(node, 'click', () => showFor(key));
+    });
+
+    // Escape hides it for keyboard users; otherwise it persists.
+    on(document, 'keydown', event => {
+      if (event.key === 'Escape' && hoverInfo && hoverInfo.classList.contains('is-visible')) hideCard();
+    });
+
+    // "Explore section" is a navigation to that section's crawlable URL. Under
+    // the shell it goes through the router so the sky is preserved.
+    on(hoverAction, 'click', () => {
+      const target = SECTION_URLS[activeKey];
+      if (target) {
+        if (window.CognikaShell) {
+          window.CognikaShell.go(activeKey === 'downloads' ? '/projects/' : target,
+                                 new URL(target, location.href).href,
+                                 { push: true, animate: true });
+        } else {
+          window.location.href = target;
+        }
+        return;
+      }
+      // Fallback for any section without a page: keep the old dialog behaviour.
+      const data = sections[activeKey];
+      dialogEyebrow.textContent = data.eyebrow;
+      dialogTitle.textContent = data.title;
+      dialogDescription.textContent = data.dialog;
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    });
+    on(dialogClose, 'click', () => dialog.close());
+    on(dialog, 'click', event => { if (event.target === dialog) dialog.close(); });
+
+    on(mobileToggle, 'click', () => {
+      const isExpanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+      mobileToggle.setAttribute('aria-expanded', String(!isExpanded));
+      document.querySelector('.orbit-stage')?.classList.toggle('mobile-nav-highlight', !isExpanded);
+      if (window.matchMedia('(max-width: 460px)').matches) {
+        document.querySelector('.orbit-menu')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    // Hovering a circle starts the flight immediately, but the section panel is
+    // only filled and revealed after the wordmark lands.
+    nodes.forEach(node => {
+      const key = node.dataset.section;
+      const begin = () => {
+        setLandingLine(key);
+        if (!landingFlown) {
+          pendingSection = key;
+          flyLogo();
+        } else {
+          showSection(key);
+        }
+      };
+      on(node, 'mouseenter', begin);
+      on(node, 'focus', begin);
+      on(node, 'click', () => { if (landingFlown) showSection(key); });
+    });
+
+    // A refresh can happen with the pointer already resting over a circle, and
+    // the browser then never sends a mouseenter: the cover would stay up.
+    const hoveredNode = document.querySelector('.orbit-node:hover');
+    if (hoveredNode) {
+      pendingSection = hoveredNode.dataset.section;
+      setLandingLine(pendingSection);
+      flyLogo();
+    }
+
+    return unmount;
+  }
+
+  function unmount() {
+    for (const [target, type, handler, opts] of bound) {
+      target.removeEventListener(type, handler, opts);
+    }
+    bound = [];
+    mountedMain = null;
+    settleFlight();
+    document.body.classList.remove('landing-active', 'landing-flown', 'panel-hidden', 'panel-ready', 'card-open');
+    document.documentElement.classList.remove('js', 'cover-up');
+  }
+
+  // Lets the shell wait for the landing transition before swapping the header.
+  function handOff() {
+    // Nothing has flown yet (the visitor never hovered a circle): run the same
+    // animation now, against the header that is still in the document.
+    if (!landingFlown && landing && headerLogo) flyLogo();
+    return flightDone || Promise.resolve();
+  }
+
+  return { mount: mount, handOff: handOff };
+})();
+
+// Direct load of the homepage (a normal page load or a hard refresh): bind now
+// against the markup that is already in the document. When the shell navigates
+// to this page later it calls mount() itself, so this must only run once.
+(function () {
+  var main = document.querySelector('body > main');
+  if (!main || !main.querySelector('.orbit-menu')) return;
+  // index.html already set this in <head> for the first paint; re-assert it so
+  // the no-JS rule in styles.css and this boot cannot disagree.
+  document.documentElement.classList.add('js');
+  window.CognikaHome.mount(main);
 })();

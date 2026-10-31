@@ -109,8 +109,27 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .meteor-four { top: 83%; left: 93%; animation-delay: 2.7s; animation-duration: 11s; transform: rotate(-34deg) scale(.8); }
 
 .topbar, .footerbar { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding-inline: clamp(22px, 4vw, 62px); }
-.topbar { min-height: 96px; padding-top: 8px; }
+/* The landing header delegates its padding and height to .topbar-inner (below),
+   which mirrors the content pages' .site-nav-inner exactly. Keeping padding on
+   .topbar as well would double it. */
+.topbar { display: block; padding-inline: 0; }
 .brand { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 8px; text-decoration: none; color: var(--text); }
+/* The landing header now has the same inner box as the content pages'
+   .site-nav-inner. Before this the .brand was a direct flex child of .topbar,
+   which the flex algorithm shrank (wordmark 224.797px wide instead of
+   222.547px) and placed 50px further left. Same wrapper, same padding, same
+   gap, same max-width: the wordmark lands on the same pixel at every width. */
+.topbar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(12px, 2vw, 30px);
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px clamp(20px, 4vw, 66px);
+}
+.topbar-inner > .brand { flex: 0 0 auto; }
 /* <picture> wraps the wordmark for responsive sources. In BOTH places it must
    not introduce a box of its own. The header is a flex column where an extra
    block would change the logo's height and alignment; .landing-inner centres
@@ -309,6 +328,20 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   transition: opacity .6s ease, visibility .6s ease;
 }
 .landing.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* ---- Shell navigation ----------------------------------------------------
+   The router swaps <main> (and, on the landing hand-off, the header). These
+   rules keep that swap from being visible where it must not be. */
+/* The landing screen is driven entirely by script.js; without JS the cover
+   never lifts, so it is never shown at all in that case. */
+html:not(.js) .landing { display: none; }
+/* A header inserted by the router is painted only after the page behind it is
+   in place, so the two headers never overlap. script.js adds .shell-hide just
+   before the swap; the router removes it once the new page is mounted. */
+header.shell-hide { opacity: 0; }
+/* The router fades <main> itself; nothing else on the page may jump while it
+   does, so the scroll container keeps its own position. */
+main { min-height: 1px; }
 .landing-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; padding: 0 clamp(16px, 3vw, 48px); }
 /* Fills most of the free width left of the circles, height capped so it stays
    comfortably inside the viewport. Aspect ratio (1700:300) is preserved. */
@@ -360,14 +393,22 @@ body.panel-hidden .hover-info { visibility: hidden; }
    `landing-active`/`panel-hidden` to <body> and removes them when the cover is
    dismissed — but that happens after meteors.js has painted the sky canvas,
    which on a cold cache is late enough to show the panel for a few frames.
-   Hence the duplicate. `js` is removed once the cover is gone, so the plain
-   rules above take over again. */
-:root.js .brand { pointer-events: none; }
-:root.js .brand-logo,
-:root.js .brand-tagline,
-:root.js .writing-pane { opacity: 0; }
-:root.js .center-panel,
-:root.js .hover-info { visibility: hidden; }
+   Hence the duplicate. The homepage keeps `js` while the shell is on it, so
+   the plain rules above take over again as soon as another route is shown.
+
+   `js` now means "the shell is running", which is true on every route. The
+   landing-specific hiding must therefore be scoped to the landing route, or
+   the header wordmark would be invisible on every content page.
+
+   `cover-up` is the real switch: it is set while the landing cover is shown and
+   removed the moment the wordmark lands. Scoping to the route alone would hide
+   the header wordmark and the section panel for the whole landing route. */
+:root.cover-up .brand { pointer-events: none; }
+:root.cover-up .brand-logo,
+:root.cover-up .brand-tagline,
+:root.cover-up .writing-pane { opacity: 0; }
+:root.cover-up .center-panel,
+:root.cover-up .hover-info { visibility: hidden; }
 
 /* On phones the navigator moves to the BOTTOM of the viewport, so the landing
    wordmark can sit in the upper third without ever colliding with it. */
@@ -471,7 +512,7 @@ html.sky-active .cosmos::before { background: radial-gradient(ellipse at 50% 48%
 }
 
 @media (max-width: 760px) {
-  .topbar { min-height: 78px; padding-inline: 20px; }
+  .topbar-inner { padding: 12px clamp(20px, 4vw, 66px); }
   .brand-logo { height: 24px; }
   .brand-tagline { font-size: 7px; letter-spacing: .19em; }
   .mobile-menu-toggle { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 40px; height: 40px; padding: 8px; border: 1px solid rgba(152, 197, 241, .25); border-radius: 50%; background: rgba(6, 14, 26, .65); }

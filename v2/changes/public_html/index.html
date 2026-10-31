@@ -26,7 +26,7 @@
   <meta name="twitter:description" content="Intelligence, engineering, and adaptive systems: e_OS, pa_ia, and Srm_p.">
   <meta name="twitter:image" content="https://cognika.tech/assets/img/back_ground.webp">
 
-  <link rel="stylesheet" href="assets/css/styles.css?v=24">
+  <link rel="stylesheet" href="assets/css/styles.css?v=36">
   <link rel="preload" as="image" type="image/avif" fetchpriority="high"
         imagesrcset="assets/img/back_ground-640.avif 640w, assets/img/back_ground-1000.avif 1000w, assets/img/back_ground.webp 1200w"
         imagesizes="200vw">
@@ -117,21 +117,23 @@
   <canvas class="logo-flame" id="logoFlame" aria-hidden="true"></canvas>
 
   <header class="topbar">
-    <a class="brand" href="#home" aria-label="Cognika home">
-      <picture>
-        <source type="image/avif"
-                srcset="assets/img/logo-230.avif 230w, assets/img/logo-460.avif 460w"
-                sizes="230px">
-        <source type="image/webp"
-                srcset="assets/img/logo-230.webp 230w, assets/img/logo-460.webp 460w"
-                sizes="230px">
-        <img class="brand-logo" src="assets/img/logo.png" alt="Cognika" width="1700" height="300" fetchpriority="high">
-      </picture>
-      <span class="brand-tagline">INTELLIGENCE CREATES TOMORROW</span>
-    </a>
-    <button class="mobile-menu-toggle" type="button" aria-label="Show navigation" aria-expanded="false">
-      <span></span><span></span>
-    </button>
+    <div class="topbar-inner">
+      <a class="brand" href="#home" aria-label="Cognika home">
+        <picture>
+          <source type="image/avif"
+                  srcset="assets/img/logo-230.avif 230w, assets/img/logo-460.avif 460w"
+                  sizes="230px">
+          <source type="image/webp"
+                  srcset="assets/img/logo-230.webp 230w, assets/img/logo-460.webp 460w"
+                  sizes="230px">
+          <img class="brand-logo" src="assets/img/logo.png" alt="Cognika" width="1700" height="300" fetchpriority="high">
+        </picture>
+        <span class="brand-tagline">INTELLIGENCE CREATES TOMORROW</span>
+      </a>
+      <button class="mobile-menu-toggle" type="button" aria-label="Show navigation" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
   </header>
 
   <main id="home" class="universe">
@@ -227,9 +229,10 @@
        order, which is what hands the first paint to the sky canvas.
        script.js is preloaded because a Home click from any sub-page is a fresh
        document: nothing is reused from the page it leaves. -->
-  <link rel="preload" href="assets/js/script.js?v=18" as="script">
+  <link rel="preload" href="assets/js/script.js?v=20" as="script">
   <script src="assets/js/meteors.js?v=15" defer></script>
-  <script src="assets/js/script.js?v=18" defer></script>
-  <script src="assets/js/flame.js?v=6" defer></script>
+  <script src="assets/js/script.js?v=20" defer></script>
+  <script src="assets/js/flame.js?v=8" defer></script>
+  <script src="/assets/js/shell.js?v=3" defer></script>
 </body>
 </html>

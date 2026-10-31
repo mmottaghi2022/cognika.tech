@@ -18,11 +18,24 @@
   var W = 0, H = 0, dpr = 1, parts = [], last = 0, box = null;
 
   function visibleLogo() {
-    if (document.body.classList.contains('panel-ready')) {
-      return document.querySelector('.brand-logo');
-    }
-    return document.getElementById('landingLogo');
+    // Which wordmark is actually on screen decides which one the flame follows.
+    // `panel-ready` alone was wrong: on the landing screen it is false, so the
+    // flame attached to the big #landingLogo even after a shell navigation had
+    // put the header wordmark back — leaving a flame floating where the landing
+    // logo used to be until a refresh reset the state.
+    var landing = document.getElementById('landingLogo');
+    var brand = document.querySelector('.brand-logo');
+    var landingUp = landing &&
+                    document.documentElement.classList.contains('cover-up');
+
+    if (landingUp) return landing;
+    return brand || landing;
   }
+
+  // The shell swaps <header> and <main> in place, which moves the wordmark
+  // without firing a resize. This lets the router ask for an immediate
+  // re-measure once the new page is in the document.
+  window.__flameRelayout = function () { layout(); };
 
   // Map a normalised ridge point into canvas-local pixels.
   function ridgePoint(t) {
