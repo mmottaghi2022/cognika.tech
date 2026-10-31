@@ -28,7 +28,7 @@
 
   <link rel="stylesheet" href="assets/css/styles.css?v=36">
   <link rel="preload" as="image" type="image/avif" fetchpriority="high"
-        imagesrcset="assets/img/back_ground-640.avif 640w, assets/img/back_ground-1000.avif 1000w, assets/img/back_ground.webp 1200w"
+        imagesrcset="assets/img/back_ground-640.avif?v=1 640w, assets/img/back_ground-1000.avif?v=1 1000w, assets/img/back_ground.webp?v=1 1200w"
         imagesizes="200vw">
   <script>
     /* The landing cover: the hover panel and the header wordmark are hidden
@@ -75,12 +75,12 @@
   <div class="backdrop" aria-hidden="true">
     <picture>
       <source type="image/avif"
-              srcset="assets/img/back_ground-640.avif 640w, assets/img/back_ground-1000.avif 1000w, assets/img/back_ground.webp 1200w"
+              srcset="assets/img/back_ground-640.avif?v=1 640w, assets/img/back_ground-1000.avif?v=1 1000w, assets/img/back_ground.webp?v=1 1200w"
               sizes="200vw">
       <source type="image/webp"
-              srcset="assets/img/back_ground-640.webp 640w, assets/img/back_ground-1000.webp 1000w, assets/img/back_ground.webp 1200w"
+              srcset="assets/img/back_ground-640.webp?v=1 640w, assets/img/back_ground-1000.webp?v=1 1000w, assets/img/back_ground.webp?v=1 1200w"
               sizes="200vw">
-      <img src="assets/img/back_ground.webp" alt="" width="1200" height="675" decoding="async" fetchpriority="high">
+      <img src="assets/img/back_ground.webp?v=1" alt="" width="1200" height="675" decoding="async" fetchpriority="high">
     </picture>
   </div>
   <canvas class="meteor-sky" id="meteorSky" aria-hidden="true"></canvas>
